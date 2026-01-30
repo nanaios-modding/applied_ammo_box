@@ -1,10 +1,16 @@
 package com.nanaios.applied_ammo_box.item;
 
 import appeng.api.networking.IGrid;
+import appeng.api.networking.security.IActionSource;
+import appeng.api.stacks.AEItemKey;
+import appeng.api.stacks.AEKey;
+import appeng.me.helpers.BaseActionSource;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
+import com.tacz.guns.api.item.builder.AmmoItemBuilder;
 import com.tacz.guns.item.AmmoBoxItem;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
@@ -13,11 +19,12 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class WirelessAmmoBoxItem extends AmmoBoxItem {
+    ResourceLocation ammoId;
     public WirelessAmmoBoxItem() {
         super();
     }
 
-    public UpdateResult updateAmmoCount(ItemStack itemStack) {
+    public UpdateResult updateAmmoCount(ItemStack itemStack,GlobalPos pos) {
         // 座標を取得
         GlobalPos linkPos = AE2LinkHelper.getLinkedPosition(itemStack);
         if (linkPos == null) return UpdateResult.DEVICE_NOT_LINKED;
@@ -25,6 +32,17 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem {
         // グリッドを取得
         IGrid grid = AE2LinkHelper.getGrid(linkPos);
         if (grid == null) return UpdateResult.LINKED_NETWORK_NOT_FOUND;
+
+        // 範囲内かチェック
+        if(!AE2LinkHelper.getBestWap(grid,pos)) {
+            return UpdateResult.LINKED_NETWORK_NOT_FOUND;
+        }
+
+        IActionSource source = new BaseActionSource();
+
+        ItemStack ammoStack = AmmoItemBuilder.create().setId(ammoId).setCount(1).build();
+        AEKey key = AEItemKey.of(ammoStack);
+        if(key == null) return UpdateResult.LINKED_NETWORK_NOT_FOUND;
 
         return UpdateResult.SUCCESS;
     }
@@ -47,6 +65,7 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem {
     public enum UpdateResult {
         SUCCESS,
         DEVICE_NOT_LINKED,
-        LINKED_NETWORK_NOT_FOUND
+        LINKED_NETWORK_NOT_FOUND,
+        NOT_ENOUGH_AMMO
     }
 }

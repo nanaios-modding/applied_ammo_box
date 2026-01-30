@@ -2,10 +2,13 @@ package com.nanaios.applied_ammo_box.util;
 
 import appeng.api.implementations.blockentities.IWirelessAccessPoint;
 import appeng.api.networking.IGrid;
+import appeng.api.util.DimensionalBlockPos;
+import appeng.blockentity.networking.WirelessAccessPointBlockEntity;
 import appeng.util.Platform;
 import com.mojang.datafixers.util.Pair;
 import com.nanaios.applied_ammo_box.AppliedAmmoBox;
 import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -56,5 +59,73 @@ public class AE2LinkHelper {
         }
 
         return accessPoint.getGrid();
+    }
+
+    /// 有効範囲に指定座標が含まれるアクセスポイントの取得を試みる \
+    /// サーバーサイドでのみ動作
+    /// @param grid チェック対象のAE2グリッド
+    /// @param pos チェック対象の座標
+    @OnlyIn(Dist.DEDICATED_SERVER)
+    public static boolean getBestWap(IGrid grid, GlobalPos pos) {
+        IWirelessAccessPoint bestWap = null;
+        double bestSqDistance = Double.MAX_VALUE;
+
+        // 座標のレベルを取得
+        ServerLevel level = ServerLifecycleHooks.getCurrentServer().getLevel(pos.dimension());
+        if (level == null) {
+            return false;
+        }
+
+        // 最も近いかつ有効なアクセスポイントを見つける
+        for (WirelessAccessPointBlockEntity wap : grid.getMachines(WirelessAccessPointBlockEntity.class)) {
+            double sqDistance = getWapSqDistance(wap,pos.pos(),level);
+            if (sqDistance < bestSqDistance) {
+                bestSqDistance = sqDistance;
+                bestWap = wap;
+            }
+        }
+
+        // 有効なアクセスポイントが見つかったかどうかを返す
+        return bestWap != null;
+    }
+
+    /// アクセスポイントと指定された座標とで三平方を計算する \
+    /// アクセスポイントがアクティブでない場合、またはLevelが異なる場合は無効な距離を返す \
+    /// サーバーサイドでのみ動作
+    /// @param wap 対象のアクセスポイント
+    /// @param pos 距離を測定する座標
+    /// @param level 座標が存在するレベル
+    @OnlyIn(Dist.DEDICATED_SERVER)
+    public static double getWapSqDistance(WirelessAccessPointBlockEntity wap, BlockPos pos, ServerLevel level) {
+        // アクセスポイントがアクティブでない場合は無効な距離を返す
+        if(!wap.isActive()) {
+            return Double.MAX_VALUE;
+        }
+
+        // アクセスポイントの座標とレベルを取得
+        DimensionalBlockPos dc = wap.getLocation();
+        // レベルが異なる場合は無効な距離を返す
+        if(dc.getLevel() != level) {
+            return Double.MAX_VALUE;
+        }
+
+        // アクセスポイントの範囲を取得
+        double rangeLimit = wap.getRange();
+        // 距離の二乗を計算し、三平方の定理で使用する
+        rangeLimit *= rangeLimit;
+
+        // 三平方の定理で距離の二乗を計算
+        int offX = dc.getPos().getX() - pos.getX();
+        int offY = dc.getPos().getY() - pos.getY();
+        int offZ = dc.getPos().getZ() - pos.getZ();
+        double r = offX * offX + offY * offY + offZ * offZ;
+
+        // アクセスポイントの範囲内なら距離を返す
+        if (r < rangeLimit) {
+            return r;
+        }
+
+        // 範囲外なら無効な距離を返す
+        return Double.MAX_VALUE;
     }
 }
