@@ -176,7 +176,6 @@ dependencies {
     implementation fg.deobf("curse.maven:timeless-and-classics-zero-1028108:6654541")
     implementation fg.deobf("appeng:appliedenergistics2-forge:15.4.8")
     implementation fg.deobf("curse.maven:aeinfinitybooster-559313:6482257")
-    //implementation fg.deobf("curse.maven:arsarms-1307929:6921320")
     runtimeOnly fg.deobf("curse.maven:tacz-curiosable-ammo-box-1339813:6965953")
 
     //jei
