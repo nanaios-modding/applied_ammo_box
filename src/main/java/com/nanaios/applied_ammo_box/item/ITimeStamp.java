@@ -1,0 +1,29 @@
+package com.nanaios.applied_ammo_box.item;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+/// タイムスタンプを管理するためのインターフェース
+public interface ITimeStamp {
+    /// タイムスタンプのNBTキー
+    String TAG_TIME_STAMP = "lastCheckedTimeStamp";
+
+    /// タイムスタンプを取得する
+    /// @param stack 対象のItemStack
+    default long getTimeStamp(ItemStack stack) {
+        CompoundTag tag = stack.getOrCreateTag();
+        return tag.getLong(TAG_TIME_STAMP);
+    }
+
+    /// タイムスタンプを設定する \
+    /// サーバーサイドでのみ動作
+    /// @param stack 対象のItemStack
+    /// @param value 設定するタイムスタンプの値
+    @OnlyIn(Dist.DEDICATED_SERVER)
+    default void setTimeStamp(ItemStack stack, long value) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putLong(TAG_TIME_STAMP,value);
+    }
+}

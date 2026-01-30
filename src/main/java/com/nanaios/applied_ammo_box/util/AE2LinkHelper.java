@@ -21,14 +21,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
+/// AE2のリンク関連のヘルパークラス
 public class AE2LinkHelper {
-    /// ItemStackのNBTタグで使用する座標データのキー
+    /// 座標データのNBTキー
     public static String TAG_ACCESS_POINT_POS = "accessPoint";
+    /// リンク状態フラグのNBTキー
+    public static String TAG_IS_LINKED = "isLinked";
 
-    /// ItemStackからリンクされた座標を取得する \
-    /// サーバーサイドでのみ動作
+    /// ItemStackからリンクされた座標を取得する
     /// @param item リンクされた座標を持つ可能性のあるItemStack
-    @OnlyIn(Dist.DEDICATED_SERVER)
     public static @Nullable GlobalPos getLinkedPosition(ItemStack item) {
         CompoundTag tag = item.getTag();
         if (tag != null && tag.contains(TAG_ACCESS_POINT_POS, Tag.TAG_COMPOUND)) {
@@ -48,15 +49,11 @@ public class AE2LinkHelper {
     public static @Nullable IGrid getGrid(GlobalPos linkedPos) {
         // リンクされた座標のレベルを取得
         ServerLevel linkedLevel = ServerLifecycleHooks.getCurrentServer().getLevel(linkedPos.dimension());
-        if (linkedLevel == null) {
-            return null;
-        }
+        if (linkedLevel == null) return null;
 
         // 座標からブロックエンティティを取得
         BlockEntity blockEntity = Platform.getTickingBlockEntity(linkedLevel, linkedPos.pos());
-        if (!(blockEntity instanceof IWirelessAccessPoint accessPoint)) {
-            return null;
-        }
+        if (!(blockEntity instanceof IWirelessAccessPoint accessPoint)) return null;
 
         return accessPoint.getGrid();
     }
@@ -66,15 +63,14 @@ public class AE2LinkHelper {
     /// @param grid チェック対象のAE2グリッド
     /// @param pos チェック対象の座標
     @OnlyIn(Dist.DEDICATED_SERVER)
-    public static boolean getBestWap(IGrid grid, GlobalPos pos) {
+    public static @Nullable IWirelessAccessPoint getBestWap(IGrid grid, GlobalPos pos) {
         IWirelessAccessPoint bestWap = null;
         double bestSqDistance = Double.MAX_VALUE;
 
         // 座標のレベルを取得
         ServerLevel level = ServerLifecycleHooks.getCurrentServer().getLevel(pos.dimension());
-        if (level == null) {
-            return false;
-        }
+        if (level == null) return null;
+
 
         // 最も近いかつ有効なアクセスポイントを見つける
         for (WirelessAccessPointBlockEntity wap : grid.getMachines(WirelessAccessPointBlockEntity.class)) {
@@ -85,8 +81,7 @@ public class AE2LinkHelper {
             }
         }
 
-        // 有効なアクセスポイントが見つかったかどうかを返す
-        return bestWap != null;
+        return bestWap;
     }
 
     /// アクセスポイントと指定された座標とで三平方を計算する \
@@ -98,16 +93,13 @@ public class AE2LinkHelper {
     @OnlyIn(Dist.DEDICATED_SERVER)
     public static double getWapSqDistance(WirelessAccessPointBlockEntity wap, BlockPos pos, ServerLevel level) {
         // アクセスポイントがアクティブでない場合は無効な距離を返す
-        if(!wap.isActive()) {
-            return Double.MAX_VALUE;
-        }
+        if(!wap.isActive()) return Double.MAX_VALUE;
 
         // アクセスポイントの座標とレベルを取得
         DimensionalBlockPos dc = wap.getLocation();
         // レベルが異なる場合は無効な距離を返す
-        if(dc.getLevel() != level) {
-            return Double.MAX_VALUE;
-        }
+        if(dc.getLevel() != level) return Double.MAX_VALUE;
+
 
         // アクセスポイントの範囲を取得
         double rangeLimit = wap.getRange();
@@ -121,11 +113,26 @@ public class AE2LinkHelper {
         double r = offX * offX + offY * offY + offZ * offZ;
 
         // アクセスポイントの範囲内なら距離を返す
-        if (r < rangeLimit) {
-            return r;
-        }
+        if (r < rangeLimit) return r;
 
         // 範囲外なら無効な距離を返す
         return Double.MAX_VALUE;
+    }
+
+    /// ItemStackにリンク状態フラグを設定する \
+    /// サーバーサイドでのみ動作
+    /// @param stack リンク状態を設定するItemStack
+    /// @param isLinked リンク状態フラグ
+    @OnlyIn(Dist.DEDICATED_SERVER)
+    public static void setLinked(ItemStack stack, boolean isLinked) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putBoolean(TAG_IS_LINKED, isLinked);
+    }
+
+    /// ItemStackのリンク状態を取得する
+    /// @param stack リンク状態を確認するItemStack
+    public static boolean isLinked(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.getBoolean(TAG_IS_LINKED);
     }
 }
