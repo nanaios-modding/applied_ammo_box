@@ -1,7 +1,6 @@
 package com.nanaios.applied_ammo_box;
 
 import com.nanaios.applied_ammo_box.config.AppliedAmmoBoxConfig;
-import com.nanaios.applied_ammo_box.network.AppliedAmmoBoxNetwork;
 import com.nanaios.applied_ammo_box.recipes.AppliedAmmoBoxRecipes;
 import com.nanaios.applied_ammo_box.recipes.NbtIngredient;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxCreativeTabs;
@@ -30,8 +29,6 @@ public class AppliedAmmoBox {
 
         context.registerConfig(ModConfig.Type.COMMON,AppliedAmmoBoxConfig.init());
 
-        AppliedAmmoBoxNetwork.register();
-
         modEventBus.addListener(this::commonSetup);
     }
 
@@ -39,17 +36,7 @@ public class AppliedAmmoBox {
         event.enqueueWork(NbtIngredient::register);
     }
 
-    @SuppressWarnings("removal")
-    public static ResourceLocation rlSingle(String str) {
-        return new ResourceLocation(str);
-    }
-
-    @SuppressWarnings("removal")
     public static ResourceLocation rl(String path) {
-        return new ResourceLocation(MODID, path);
-    }
-    @SuppressWarnings("removal")
-    public static ResourceLocation rl(String namespace,String path) {
-        return new ResourceLocation(namespace, path);
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 }

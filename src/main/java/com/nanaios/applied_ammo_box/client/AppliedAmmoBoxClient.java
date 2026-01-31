@@ -1,7 +1,6 @@
 package com.nanaios.applied_ammo_box.client;
 
 import com.nanaios.applied_ammo_box.AppliedAmmoBox;
-import com.nanaios.applied_ammo_box.network.AppliedAmmoBoxNetwork;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,6 +24,5 @@ public class AppliedAmmoBoxClient {
                     return 1.0f;
                 }); */
 
-        AppliedAmmoBoxNetwork.register();
     }
 }
