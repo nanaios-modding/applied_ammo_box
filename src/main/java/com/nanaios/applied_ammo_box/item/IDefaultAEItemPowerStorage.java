@@ -11,7 +11,6 @@ import net.minecraft.world.item.ItemStack;
 public interface IDefaultAEItemPowerStorage extends IAEItemPowerStorage {
     double MIN_POWER = 0.0001;
     String CURRENT_POWER_NBT_KEY = "internalCurrentPower";
-    String MAX_POWER_NBT_KEY = "internalMaxPower";
 
     @Override
     default double injectAEPower(ItemStack stack, double amount, Actionable mode) {
@@ -42,38 +41,7 @@ public interface IDefaultAEItemPowerStorage extends IAEItemPowerStorage {
 
     @Override
     default double getAEMaxPower(ItemStack stack) {
-        // Allow per-item-stack overrides of the maximum power storage
-        var tag = stack.getTag();
-        if (tag != null && tag.contains(MAX_POWER_NBT_KEY, Tag.TAG_DOUBLE)) {
-            return tag.getDouble(MAX_POWER_NBT_KEY);
-        }
-
         return AEConfig.instance().getWirelessTerminalBattery().getAsDouble();
-    }
-
-    default void setAEMaxPower(ItemStack stack, double maxPower) {
-        var defaultCapacity = AEConfig.instance().getWirelessTerminalBattery().getAsDouble();
-        if (Math.abs(maxPower - defaultCapacity) < MIN_POWER) {
-            stack.removeTagKey(MAX_POWER_NBT_KEY);
-            maxPower = defaultCapacity;
-        } else {
-            stack.getOrCreateTag().putDouble(MAX_POWER_NBT_KEY, maxPower);
-        }
-
-        // Clamp current power to be within bounds
-        var currentPower = getAECurrentPower(stack);
-        if (currentPower > maxPower) {
-            setAECurrentPower(stack, maxPower);
-        }
-    }
-
-    default void setAEMaxPowerMultiplier(ItemStack stack, int multiplier) {
-        multiplier = Mth.clamp(multiplier, 1, 100);
-        setAEMaxPower(stack, multiplier * AEConfig.instance().getWirelessTerminalBattery().getAsDouble());
-    }
-
-    default void resetAEMaxPower(ItemStack stack) {
-        setAEMaxPower(stack, AEConfig.instance().getWirelessTerminalBattery().getAsDouble());
     }
 
     @Override

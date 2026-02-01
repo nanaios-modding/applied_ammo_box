@@ -2,7 +2,9 @@ package com.nanaios.applied_ammo_box.item;
 
 import appeng.api.config.Actionable;
 import appeng.api.features.IGridLinkableHandler;
+import appeng.core.localization.GuiText;
 import appeng.core.localization.PlayerMessages;
+import appeng.core.localization.Tooltips;
 import com.nanaios.applied_ammo_box.capabilitys.WirelessAmmoBoxCapabilityProvider;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper.ActionResult;
@@ -24,19 +26,20 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPowerStorage, ITimeStamp, ILinkableItem {
     public static IGridLinkableHandler LINKABLE_HANDLER = new LinkableHandler();
 
     public GlobalPos pos;
-
-    public WirelessAmmoBoxItem() {
-
-    }
 
     @Override
     public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
@@ -52,18 +55,10 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         pos = GlobalPos.of(level.dimension(), entity.blockPosition());
         // 弾薬のIDを取得
         ItemStack iGunStack = player.getItemInHand(InteractionHand.MAIN_HAND);
-        if (iGunStack.getItem() instanceof IGun gun) {
-            ResourceLocation gunId = gun.getGunId(iGunStack);
-            setAmmoId(
-                    stack,
-                    TimelessAPI.getCommonGunIndex(gunId)
-                            .map(commonGunIndex -> commonGunIndex.getGunData().getAmmoId())
-                            .orElse(DefaultAssets.EMPTY_AMMO_ID)
-            );
-        }
+        boolean isUpdate = updateAmmoId(stack, iGunStack);
 
         // 負荷軽減のため1秒に1回更新する
-        if ((System.currentTimeMillis() - getTimeStamp(stack)) > 1000) {
+        if ((System.currentTimeMillis() - getTimeStamp(stack)) > 1000 || isUpdate) {
             // タイムスタンプを更新
             setTimeStamp(stack, System.currentTimeMillis());
 
@@ -78,7 +73,30 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         }
     }
 
+    /// 弾薬IDを銃から取得し更新する
+    /// 更新が発生した場合はtrueを返す
+    ///
+    /// @param ammoBox  弾薬箱のItemStack
+    /// @param gunStack 銃のItemStack
+    public boolean updateAmmoId(ItemStack ammoBox, ItemStack gunStack) {
+        // 銃でなければ処理を中断
+        if (!(gunStack.getItem() instanceof IGun gun)) return false;
+
+        // 弾薬のIDを取得
+        ResourceLocation ammoId = TimelessAPI.getCommonGunIndex(gun.getGunId(gunStack))
+                .map(commonGunIndex -> commonGunIndex.getGunData().getAmmoId())
+                .orElse(DefaultAssets.EMPTY_AMMO_ID);
+
+        // 弾薬IDが同じなら処理を中断
+        if (ammoId.equals(getAmmoId(ammoBox))) return false;
+
+        // 弾薬IDを更新
+        setAmmoId(ammoBox, ammoId);
+        return true;
+    }
+
     /// 弾薬数をAE2ネットワークから取得し更新する
+    ///
     /// @param stack 弾薬箱のItemStack
     public ActionResult updateAmmoCount(ItemStack stack) {
         // 弾薬の情報を取得
@@ -95,10 +113,9 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
 
     @Override
     public void setAmmoCount(ItemStack ammoBox, int count) {
-        int oldCount = this.getAmmoCount(ammoBox);
         //弾薬が減少している個数を計算
+        int oldCount = this.getAmmoCount(ammoBox);
         int diff = oldCount - count;
-
         if (diff <= 0) return;
 
         // 弾薬をAE2ネットワークから取り出す
@@ -107,6 +124,26 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
 
         // 弾薬数を再取得して設定
         updateAmmoCount(ammoBox);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void appendHoverText(ItemStack stack, Level level, List<Component> lines, TooltipFlag advancedTooltips) {
+        final CompoundTag tag = stack.getTag();
+        double internalCurrentPower = 0;
+        final double internalMaxPower = this.getAEMaxPower(stack);
+
+        if (tag != null) {
+            internalCurrentPower = tag.getDouble(CURRENT_POWER_NBT_KEY);
+        }
+
+        lines.add(Tooltips.energyStorageComponent(internalCurrentPower, internalMaxPower));
+
+        if (isLinked(stack)) {
+            lines.add(Tooltips.of(GuiText.Linked, Tooltips.GREEN));
+        } else {
+            lines.add(Tooltips.of(GuiText.Unlinked, Tooltips.RED));
+        }
     }
 
     @Override
@@ -122,6 +159,11 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     @Override
     public boolean overrideStackedOnOther(ItemStack ammoBox, Slot slot, ClickAction action, Player player) {
         return false;
+    }
+
+    @Override
+    public boolean isBarVisible(ItemStack stack) {
+        return true;
     }
 
     @Override

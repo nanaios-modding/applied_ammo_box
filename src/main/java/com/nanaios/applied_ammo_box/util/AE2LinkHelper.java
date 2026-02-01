@@ -24,8 +24,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,32 +33,33 @@ public class AE2LinkHelper {
     public static String TAG_ACCESS_POINT_POS = "accessPoint";
 
     /// 弾薬をAE2ネットワークから取得する
-    /// @param pos 弾薬箱の座標
+    ///
+    /// @param pos     弾薬箱の座標
     /// @param ammoBox 弾薬箱のItemStack
-    /// @param ammo 弾薬のItemStack
-    /// @param count 更新する弾薬数の上限
-    /// @param mode 抽出モード
+    /// @param ammo    弾薬のItemStack
+    /// @param count   更新する弾薬数の上限
+    /// @param mode    抽出モード
     public static ActionResult extractionAmmo(GlobalPos pos, ItemStack ammoBox, ItemStack ammo, int count, Actionable mode) {
         // 座標を取得
         GlobalPos linkPos = AE2LinkHelper.getLinkedPosition(ammoBox);
-        if (linkPos == null) return new ActionResult(ActionResult.Status.DEVICE_NOT_LINKED,0);
+        if (linkPos == null) return new ActionResult(ActionResult.Status.DEVICE_NOT_LINKED, 0);
 
         // グリッドを取得
         IGrid grid = AE2LinkHelper.getGrid(linkPos);
-        if (grid == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
+        if (grid == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND, 0);
 
         // 有効範囲内のアクセスポイントを取得
         IWirelessAccessPoint wap = AE2LinkHelper.getBestWap(grid, pos);
-        if (wap == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
+        if (wap == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND, 0);
 
         // グリッドノードを取得
         IGridNode node = wap.getActionableNode();
-        if (node == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
+        if (node == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND, 0);
 
         // 弾薬のデータを生成
         IActionSource source = new BaseActionSource();
         AEKey key = AEItemKey.of(ammo);
-        if (key == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
+        if (key == null) return new ActionResult(ActionResult.Status.SUCCESS, 0);
 
         // 弾薬の数を取得
         int ammoCount = (int) StorageHelper.poweredExtraction(new ChannelPowerSrc(node, grid.getEnergyService()), grid.getStorageService().getInventory(), key, count, source, mode);
@@ -70,43 +69,8 @@ public class AE2LinkHelper {
         return new ActionResult(ActionResult.Status.SUCCESS, ammoCount);
     }
 
-    /// 弾薬をAE2ネットワークに挿入する
-    /// @param pos 弾薬箱の座標
-    /// @param ammoBox 弾薬箱のItemStack
-    /// @param ammo 弾薬のItemStack
-    /// @param count 更新する弾薬数の上限
-    /// @param mode 抽出モード
-    public static ActionResult insertAmmo(GlobalPos pos, ItemStack ammoBox, ItemStack ammo, int count, Actionable mode) {
-        // 座標を取得
-        GlobalPos linkPos = AE2LinkHelper.getLinkedPosition(ammoBox);
-        if (linkPos == null) return new ActionResult(ActionResult.Status.DEVICE_NOT_LINKED,0);
-
-        // グリッドを取得
-        IGrid grid = AE2LinkHelper.getGrid(linkPos);
-        if (grid == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
-
-        // 有効範囲内のアクセスポイントを取得
-        IWirelessAccessPoint wap = AE2LinkHelper.getBestWap(grid, pos);
-        if (wap == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
-
-        // グリッドノードを取得
-        IGridNode node = wap.getActionableNode();
-        if (node == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
-
-        // 弾薬のデータを生成
-        IActionSource source = new BaseActionSource();
-        AEKey key = AEItemKey.of(ammo);
-        if (key == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
-
-        // 弾薬の数を取得
-        int ammoCount = (int) StorageHelper.poweredInsert(new ChannelPowerSrc(node, grid.getEnergyService()), grid.getStorageService().getInventory(), key, count, source, mode);
-        // 弾薬数を0以上に補正
-        ammoCount = Math.max(0, ammoCount);
-
-        return new ActionResult(ActionResult.Status.SUCCESS, ammoCount);
-    }
-
     /// ItemStackからリンクされた座標を取得する
+    ///
     /// @param item リンクされた座標を持つ可能性のあるItemStack
     public static @Nullable GlobalPos getLinkedPosition(ItemStack item) {
         CompoundTag tag = item.getTag();
@@ -121,6 +85,7 @@ public class AE2LinkHelper {
     }
 
     /// 座標からAE2のグリッドを取得する
+    ///
     /// @param linkedPos AE2のアクセスポイントの座標
     public static @Nullable IGrid getGrid(GlobalPos linkedPos) {
         // リンクされた座標のレベルを取得
@@ -135,8 +100,9 @@ public class AE2LinkHelper {
     }
 
     /// 有効範囲に指定座標が含まれるアクセスポイントの取得を試みる
+    ///
     /// @param grid チェック対象のAE2グリッド
-    /// @param pos チェック対象の座標
+    /// @param pos  チェック対象の座標
     public static @Nullable IWirelessAccessPoint getBestWap(IGrid grid, GlobalPos pos) {
         IWirelessAccessPoint bestWap = null;
         double bestSqDistance = Double.MAX_VALUE;
@@ -148,7 +114,7 @@ public class AE2LinkHelper {
 
         // 最も近いかつ有効なアクセスポイントを見つける
         for (WirelessAccessPointBlockEntity wap : grid.getMachines(WirelessAccessPointBlockEntity.class)) {
-            double sqDistance = getWapSqDistance(wap,pos.pos(),level);
+            double sqDistance = getWapSqDistance(wap, pos.pos(), level);
             if (sqDistance < bestSqDistance) {
                 bestSqDistance = sqDistance;
                 bestWap = wap;
@@ -160,17 +126,18 @@ public class AE2LinkHelper {
 
     /// アクセスポイントと指定された座標とで三平方を計算する \
     /// アクセスポイントがアクティブでない場合、またはLevelが異なる場合は無効な距離を返す
-    /// @param wap 対象のアクセスポイント
-    /// @param pos 距離を測定する座標
+    ///
+    /// @param wap   対象のアクセスポイント
+    /// @param pos   距離を測定する座標
     /// @param level 座標が存在するレベル
     public static double getWapSqDistance(WirelessAccessPointBlockEntity wap, BlockPos pos, ServerLevel level) {
         // アクセスポイントがアクティブでない場合は無効な距離を返す
-        if(!wap.isActive()) return Double.MAX_VALUE;
+        if (!wap.isActive()) return Double.MAX_VALUE;
 
         // アクセスポイントの座標とレベルを取得
         DimensionalBlockPos dc = wap.getLocation();
         // レベルが異なる場合は無効な距離を返す
-        if(dc.getLevel() != level) return Double.MAX_VALUE;
+        if (dc.getLevel() != level) return Double.MAX_VALUE;
 
 
         // アクセスポイントの範囲を取得
@@ -195,7 +162,7 @@ public class AE2LinkHelper {
         public enum Status {
             SUCCESS,
             DEVICE_NOT_LINKED,
-            LINKED_NETWORK_NOT_FOUND;
+            LINKED_NETWORK_NOT_FOUND
         }
     }
 }
