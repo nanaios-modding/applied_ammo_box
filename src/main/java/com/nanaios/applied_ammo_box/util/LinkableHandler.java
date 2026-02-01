@@ -19,6 +19,9 @@ public class LinkableHandler implements IGridLinkableHandler {
         GlobalPos.CODEC.encodeStart(NbtOps.INSTANCE, pos)
                 .result()
                 .ifPresent(tag -> itemStack.getOrCreateTag().put(TAG_ACCESS_POINT_POS, tag));
+        if(itemStack.getItem() instanceof ILinkableItem linkableItem) {
+            linkableItem.setLinked(itemStack, true);
+        }
     }
 
     @Override

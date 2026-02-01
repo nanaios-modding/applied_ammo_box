@@ -8,7 +8,6 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "applied_ammo_box.refmap.json",
   "mixins": [
-    "ae2.MixinGridLinkables"
   ],
   "client": [],
   "injectors": {
