@@ -1,15 +1,11 @@
 package com.nanaios.applied_ammo_box.item;
 
-import appeng.api.features.IGridLinkableHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
 public interface ILinkableItem {
     /// リンク状態フラグのNBTキー
     String TAG_IS_LINKED = "isLinked";
-
-    /// リンクハンドラーを取得する
-    IGridLinkableHandler getLinkableHandler();
 
     /// ItemStackにリンク状態フラグを設定する
     ///

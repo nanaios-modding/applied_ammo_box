@@ -1,14 +1,12 @@
 package com.nanaios.applied_ammo_box.item;
 
 import appeng.api.config.Actionable;
-import appeng.api.features.IGridLinkableHandler;
 import appeng.core.localization.GuiText;
 import appeng.core.localization.PlayerMessages;
 import appeng.core.localization.Tooltips;
 import com.nanaios.applied_ammo_box.capabilitys.WirelessAmmoBoxCapabilityProvider;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper.ActionResult;
-import com.nanaios.applied_ammo_box.util.LinkableHandler;
 import com.tacz.guns.api.DefaultAssets;
 import com.tacz.guns.api.TimelessAPI;
 import com.tacz.guns.api.item.IGun;
@@ -37,8 +35,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPowerStorage, ITimeStamp, ILinkableItem {
-    public static IGridLinkableHandler LINKABLE_HANDLER = new LinkableHandler();
-
     public GlobalPos pos;
 
     @Override
@@ -186,10 +182,5 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     @Override
     public @Nullable ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
         return new WirelessAmmoBoxCapabilityProvider(stack, this);
-    }
-
-    @Override
-    public IGridLinkableHandler getLinkableHandler() {
-        return LINKABLE_HANDLER;
     }
 }
