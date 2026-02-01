@@ -33,44 +33,79 @@ import org.jetbrains.annotations.Nullable;
 public class AE2LinkHelper {
     /// 座標データのNBTキー
     public static String TAG_ACCESS_POINT_POS = "accessPoint";
-    /// リンク状態フラグのNBTキー
-    public static String TAG_IS_LINKED = "isLinked";
 
-    /// 弾薬の数をAE2ネットワークから取得し更新する \
+    /// 弾薬をAE2ネットワークから取得する \
     /// サーバーサイドでのみ動作
     /// @param pos 弾薬箱の座標
     /// @param ammoBox 弾薬箱のItemStack
     /// @param ammo 弾薬のItemStack
     /// @param count 更新する弾薬数の上限
     /// @param mode 抽出モード
-    public static ActionResult.Wrapper extractionAmmo(GlobalPos pos, ItemStack ammoBox, ItemStack ammo, int count, Actionable mode) {
+    public static ActionResult extractionAmmo(GlobalPos pos, ItemStack ammoBox, ItemStack ammo, int count, Actionable mode) {
         // 座標を取得
         GlobalPos linkPos = AE2LinkHelper.getLinkedPosition(ammoBox);
-        if (linkPos == null) return ActionResult.DEVICE_NOT_LINKED.set(0);
+        if (linkPos == null) return new ActionResult(ActionResult.Status.DEVICE_NOT_LINKED,0);
 
         // グリッドを取得
         IGrid grid = AE2LinkHelper.getGrid(linkPos);
-        if (grid == null) return ActionResult.LINKED_NETWORK_NOT_FOUND.set(0);
+        if (grid == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
 
         // 有効範囲内のアクセスポイントを取得
         IWirelessAccessPoint wap = AE2LinkHelper.getBestWap(grid, pos);
-        if (wap == null) return ActionResult.LINKED_NETWORK_NOT_FOUND.set(0);
+        if (wap == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
 
         // グリッドノードを取得
         IGridNode node = wap.getActionableNode();
-        if (node == null) return ActionResult.LINKED_NETWORK_NOT_FOUND.set(0);
+        if (node == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
 
         // 弾薬のデータを生成
         IActionSource source = new BaseActionSource();
         AEKey key = AEItemKey.of(ammo);
-        if (key == null) return ActionResult.LINKED_NETWORK_NOT_FOUND.set(0);
+        if (key == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
 
         // 弾薬の数を取得
         int ammoCount = (int) StorageHelper.poweredExtraction(new ChannelPowerSrc(node, grid.getEnergyService()), grid.getStorageService().getInventory(), key, count, source, mode);
         // 弾薬数を0以上に補正
         ammoCount = Math.max(0, ammoCount);
 
-        return ActionResult.SUCCESS.set(ammoCount);
+        return new ActionResult(ActionResult.Status.SUCCESS, ammoCount);
+    }
+
+    /// 弾薬をAE2ネットワークに挿入する \
+    /// サーバーサイドでのみ動作
+    /// @param pos 弾薬箱の座標
+    /// @param ammoBox 弾薬箱のItemStack
+    /// @param ammo 弾薬のItemStack
+    /// @param count 更新する弾薬数の上限
+    /// @param mode 抽出モード
+    public static ActionResult insertAmmo(GlobalPos pos, ItemStack ammoBox, ItemStack ammo, int count, Actionable mode) {
+        // 座標を取得
+        GlobalPos linkPos = AE2LinkHelper.getLinkedPosition(ammoBox);
+        if (linkPos == null) return new ActionResult(ActionResult.Status.DEVICE_NOT_LINKED,0);
+
+        // グリッドを取得
+        IGrid grid = AE2LinkHelper.getGrid(linkPos);
+        if (grid == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
+
+        // 有効範囲内のアクセスポイントを取得
+        IWirelessAccessPoint wap = AE2LinkHelper.getBestWap(grid, pos);
+        if (wap == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
+
+        // グリッドノードを取得
+        IGridNode node = wap.getActionableNode();
+        if (node == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
+
+        // 弾薬のデータを生成
+        IActionSource source = new BaseActionSource();
+        AEKey key = AEItemKey.of(ammo);
+        if (key == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND,0);
+
+        // 弾薬の数を取得
+        int ammoCount = (int) StorageHelper.poweredInsert(new ChannelPowerSrc(node, grid.getEnergyService()), grid.getStorageService().getInventory(), key, count, source, mode);
+        // 弾薬数を0以上に補正
+        ammoCount = Math.max(0, ammoCount);
+
+        return new ActionResult(ActionResult.Status.SUCCESS, ammoCount);
     }
 
     /// ItemStackからリンクされた座標を取得する
@@ -164,32 +199,11 @@ public class AE2LinkHelper {
         return Double.MAX_VALUE;
     }
 
-    /// ItemStackにリンク状態フラグを設定する \
-    /// サーバーサイドでのみ動作
-    /// @param stack リンク状態を設定するItemStack
-    /// @param isLinked リンク状態フラグ
-    @OnlyIn(Dist.DEDICATED_SERVER)
-    public static void setLinked(ItemStack stack, boolean isLinked) {
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putBoolean(TAG_IS_LINKED, isLinked);
-    }
-
-    /// ItemStackのリンク状態を取得する
-    /// @param stack リンク状態を確認するItemStack
-    public static boolean isLinked(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag != null && tag.getBoolean(TAG_IS_LINKED);
-    }
-
-    public enum ActionResult {
-        SUCCESS,
-        DEVICE_NOT_LINKED,
-        LINKED_NETWORK_NOT_FOUND;
-
-        public Wrapper set(int count) {
-            return new Wrapper(this, count);
+    public record ActionResult(Status status, int count) {
+        public enum Status {
+            SUCCESS,
+            DEVICE_NOT_LINKED,
+            LINKED_NETWORK_NOT_FOUND;
         }
-
-        public record Wrapper(ActionResult action, int count) { }
     }
 }
