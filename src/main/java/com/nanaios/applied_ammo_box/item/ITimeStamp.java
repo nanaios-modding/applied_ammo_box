@@ -17,11 +17,9 @@ public interface ITimeStamp {
         return tag.getLong(TAG_TIME_STAMP);
     }
 
-    /// タイムスタンプを設定する \
-    /// サーバーサイドでのみ動作
+    /// タイムスタンプを設定する
     /// @param stack 対象のItemStack
     /// @param value 設定するタイムスタンプの値
-    @OnlyIn(Dist.DEDICATED_SERVER)
     default void setTimeStamp(ItemStack stack, long value) {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putLong(TAG_TIME_STAMP,value);

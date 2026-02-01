@@ -13,11 +13,9 @@ public interface ILinkableItem {
     /// リンクハンドラーを取得する
     IGridLinkableHandler getLinkableHandler();
 
-    /// ItemStackにリンク状態フラグを設定する \
-    /// サーバーサイドでのみ動作
+    /// ItemStackにリンク状態フラグを設定する
     /// @param stack リンク状態を設定するItemStack
     /// @param isLinked リンク状態フラグ
-    @OnlyIn(Dist.DEDICATED_SERVER)
     default void setLinked(ItemStack stack, boolean isLinked) {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putBoolean(TAG_IS_LINKED, isLinked);

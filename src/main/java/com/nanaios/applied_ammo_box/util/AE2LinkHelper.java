@@ -34,8 +34,7 @@ public class AE2LinkHelper {
     /// 座標データのNBTキー
     public static String TAG_ACCESS_POINT_POS = "accessPoint";
 
-    /// 弾薬をAE2ネットワークから取得する \
-    /// サーバーサイドでのみ動作
+    /// 弾薬をAE2ネットワークから取得する
     /// @param pos 弾薬箱の座標
     /// @param ammoBox 弾薬箱のItemStack
     /// @param ammo 弾薬のItemStack
@@ -71,8 +70,7 @@ public class AE2LinkHelper {
         return new ActionResult(ActionResult.Status.SUCCESS, ammoCount);
     }
 
-    /// 弾薬をAE2ネットワークに挿入する \
-    /// サーバーサイドでのみ動作
+    /// 弾薬をAE2ネットワークに挿入する
     /// @param pos 弾薬箱の座標
     /// @param ammoBox 弾薬箱のItemStack
     /// @param ammo 弾薬のItemStack
@@ -122,10 +120,8 @@ public class AE2LinkHelper {
         }
     }
 
-    /// 座標からAE2のグリッドを取得する \
-    /// サーバーサイドでのみ動作
+    /// 座標からAE2のグリッドを取得する
     /// @param linkedPos AE2のアクセスポイントの座標
-    @OnlyIn(Dist.DEDICATED_SERVER)
     public static @Nullable IGrid getGrid(GlobalPos linkedPos) {
         // リンクされた座標のレベルを取得
         ServerLevel linkedLevel = ServerLifecycleHooks.getCurrentServer().getLevel(linkedPos.dimension());
@@ -138,11 +134,9 @@ public class AE2LinkHelper {
         return accessPoint.getGrid();
     }
 
-    /// 有効範囲に指定座標が含まれるアクセスポイントの取得を試みる \
-    /// サーバーサイドでのみ動作
+    /// 有効範囲に指定座標が含まれるアクセスポイントの取得を試みる
     /// @param grid チェック対象のAE2グリッド
     /// @param pos チェック対象の座標
-    @OnlyIn(Dist.DEDICATED_SERVER)
     public static @Nullable IWirelessAccessPoint getBestWap(IGrid grid, GlobalPos pos) {
         IWirelessAccessPoint bestWap = null;
         double bestSqDistance = Double.MAX_VALUE;
@@ -165,12 +159,10 @@ public class AE2LinkHelper {
     }
 
     /// アクセスポイントと指定された座標とで三平方を計算する \
-    /// アクセスポイントがアクティブでない場合、またはLevelが異なる場合は無効な距離を返す \
-    /// サーバーサイドでのみ動作
+    /// アクセスポイントがアクティブでない場合、またはLevelが異なる場合は無効な距離を返す
     /// @param wap 対象のアクセスポイント
     /// @param pos 距離を測定する座標
     /// @param level 座標が存在するレベル
-    @OnlyIn(Dist.DEDICATED_SERVER)
     public static double getWapSqDistance(WirelessAccessPointBlockEntity wap, BlockPos pos, ServerLevel level) {
         // アクセスポイントがアクティブでない場合は無効な距離を返す
         if(!wap.isActive()) return Double.MAX_VALUE;
