@@ -3,8 +3,6 @@ package com.nanaios.applied_ammo_box.item;
 import appeng.api.features.IGridLinkableHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface ILinkableItem {
     /// リンク状態フラグのNBTキー

@@ -3,6 +3,7 @@ package com.nanaios.applied_ammo_box.item;
 import appeng.api.config.Actionable;
 import appeng.api.features.IGridLinkableHandler;
 import appeng.core.localization.PlayerMessages;
+import com.nanaios.applied_ammo_box.capabilitys.WirelessAmmoBoxCapabilityProvider;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper.ActionResult;
 import com.nanaios.applied_ammo_box.util.LinkableHandler;
@@ -12,6 +13,7 @@ import com.tacz.guns.api.item.IGun;
 import com.tacz.guns.api.item.builder.AmmoItemBuilder;
 import com.tacz.guns.item.AmmoBoxItem;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -23,10 +25,11 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPowerStorage,ITimeStamp,ILinkableItem {
+public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPowerStorage, ITimeStamp, ILinkableItem {
     public static IGridLinkableHandler LINKABLE_HANDLER = new LinkableHandler();
 
     public GlobalPos pos;
@@ -40,39 +43,39 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         super.inventoryTick(stack, level, entity, slotId, isSelected);
 
         // サーバーサイドでのみ動作させる
-        ServerLifecycleHooks.getCurrentServer().execute(() -> {
-            // プレイヤーでなければ処理を中断
-            if (!(entity instanceof Player player)) return;
+        if (level.isClientSide()) return;
 
-            // 弾薬箱の座標を取得
-            pos = GlobalPos.of(level.dimension(), entity.blockPosition());
-            // 弾薬のIDを取得
-            ItemStack iGunStack = player.getItemInHand(InteractionHand.MAIN_HAND);
-            if (iGunStack.getItem() instanceof IGun gun) {
-                ResourceLocation gunId = gun.getGunId(iGunStack);
-                setAmmoId(
-                        stack,
-                        TimelessAPI.getCommonGunIndex(gunId)
-                                .map(commonGunIndex -> commonGunIndex.getGunData().getAmmoId())
-                                .orElse(DefaultAssets.EMPTY_AMMO_ID)
-                );
+        // プレイヤーでなければ処理を中断
+        if (!(entity instanceof Player player)) return;
+
+        // 弾薬箱の座標を取得
+        pos = GlobalPos.of(level.dimension(), entity.blockPosition());
+        // 弾薬のIDを取得
+        ItemStack iGunStack = player.getItemInHand(InteractionHand.MAIN_HAND);
+        if (iGunStack.getItem() instanceof IGun gun) {
+            ResourceLocation gunId = gun.getGunId(iGunStack);
+            setAmmoId(
+                    stack,
+                    TimelessAPI.getCommonGunIndex(gunId)
+                            .map(commonGunIndex -> commonGunIndex.getGunData().getAmmoId())
+                            .orElse(DefaultAssets.EMPTY_AMMO_ID)
+            );
+        }
+
+        // 負荷軽減のため1秒に1回更新する
+        if ((System.currentTimeMillis() - getTimeStamp(stack)) > 1000) {
+            // タイムスタンプを更新
+            setTimeStamp(stack, System.currentTimeMillis());
+
+            // 弾薬数を更新
+            ActionResult result = updateAmmoCount(stack);
+
+            switch (result.status()) {
+                case DEVICE_NOT_LINKED -> player.displayClientMessage(PlayerMessages.DeviceNotLinked.text(), true);
+                case LINKED_NETWORK_NOT_FOUND ->
+                        player.displayClientMessage(PlayerMessages.LinkedNetworkNotFound.text(), true);
             }
-
-            // 負荷軽減のため1秒に1回更新する
-            if ((System.currentTimeMillis() - getTimeStamp(stack)) > 1000) {
-                // タイムスタンプを更新
-                setTimeStamp(stack, System.currentTimeMillis());
-
-                // 弾薬数を更新
-                ActionResult result = updateAmmoCount(stack);
-
-                switch (result.status()) {
-                    case DEVICE_NOT_LINKED -> player.displayClientMessage(PlayerMessages.DeviceNotLinked.text(), true);
-                    case LINKED_NETWORK_NOT_FOUND ->
-                            player.displayClientMessage(PlayerMessages.LinkedNetworkNotFound.text(), true);
-                }
-            }
-        });
+        }
     }
 
     /// 弾薬数をAE2ネットワークから取得し更新する
@@ -83,9 +86,9 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         // 弾薬数を更新
         ActionResult result = AE2LinkHelper.extractionAmmo(pos, stack, ammo, Integer.MAX_VALUE, Actionable.SIMULATE);
         // 弾薬箱の弾薬数を直接更新
-        super.setAmmoCount(stack,result.count());
+        super.setAmmoCount(stack, result.count());
         // リンク状態を更新
-        this.setLinked(stack,result.status() == ActionResult.Status.SUCCESS);
+        this.setLinked(stack, result.status() == ActionResult.Status.SUCCESS);
 
         return result;
     }
@@ -96,7 +99,7 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         //弾薬が減少している個数を計算
         int diff = oldCount - count;
 
-        if(diff <= 0) return;
+        if (diff <= 0) return;
 
         // 弾薬をAE2ネットワークから取り出す
         ItemStack ammo = AmmoItemBuilder.create().setId(getAmmoId(ammoBox)).setCount(1).build();
@@ -136,6 +139,11 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return slotChanged || !ItemStack.isSameItem(oldStack, newStack);
+    }
+
+    @Override
+    public @Nullable ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
+        return new WirelessAmmoBoxCapabilityProvider(stack, this);
     }
 
     @Override
