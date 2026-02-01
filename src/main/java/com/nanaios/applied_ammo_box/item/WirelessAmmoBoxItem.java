@@ -134,6 +134,11 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     }
 
     @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged || !ItemStack.isSameItem(oldStack, newStack);
+    }
+
+    @Override
     public IGridLinkableHandler getLinkableHandler() {
         return LINKABLE_HANDLER;
     }
