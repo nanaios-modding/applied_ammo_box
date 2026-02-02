@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "mixinextras": {
+    "minVersion": "0.5.0"
+  },
+  "package": "com.nanaios.applied_ammo_box.mixin.aeinfinitybooster",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "applied_ammo_box.refmap.json",
+  "mixins": [
+    "MixinAE2LinkHelper"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
