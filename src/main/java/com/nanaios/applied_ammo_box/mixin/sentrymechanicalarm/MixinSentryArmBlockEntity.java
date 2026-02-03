@@ -30,8 +30,8 @@ public abstract class MixinSentryArmBlockEntity {
             // ワイヤレス弾薬箱の場合、設置された位置情報を保存する
             BlockEntity blockEntity = (BlockEntity)(Object)this;
             Level level = blockEntity.getLevel();
+            if(level == null || level.isClientSide) return;
             BlockPos pos = blockEntity.getBlockPos();
-            if(level == null) return;
             wirelessAmmoBoxItem.setLevel(stack,level);
             wirelessAmmoBoxItem.setPos(stack, pos);
 
@@ -52,6 +52,9 @@ public abstract class MixinSentryArmBlockEntity {
             if(itemStack.isEmpty()) continue;
             if(!(itemStack.getItem() instanceof WirelessAmmoBoxItem wirelessAmmoBoxItem)) continue;
             if(!wirelessAmmoBoxItem.isWantUpdate(itemStack)) continue;
+
+            // 設置されたタイムスタンプを更新する
+            wirelessAmmoBoxItem.setTimeStamp(itemStack, System.currentTimeMillis());
 
             wirelessAmmoBoxItem.updateAmmoCount(itemStack);
         }
