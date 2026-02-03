@@ -1,5 +1,6 @@
 package com.nanaios.applied_ammo_box.mixin.sentrymechanicalarm;
 
+import com.nanaios.applied_ammo_box.AppliedAmmoBox;
 import net.minecraftforge.fml.loading.LoadingModList;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -21,7 +22,13 @@ public class MixinSentryMechanicalArmPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String s, String s1) {
-        return LoadingModList.get().getModFileById("sentrymechanicalarm") != null;
+        boolean canApply = LoadingModList.get().getModFileById("sentrymechanicalarm") != null;
+        if (canApply) {
+            AppliedAmmoBox.LOGGER.info("Applying Mixin to Sentry Mechanical Arm");
+        } else {
+            AppliedAmmoBox.LOGGER.info("Sentry Mechanical Arm is not loaded, skipping Mixin");
+        }
+        return canApply;
     }
 
     @Override

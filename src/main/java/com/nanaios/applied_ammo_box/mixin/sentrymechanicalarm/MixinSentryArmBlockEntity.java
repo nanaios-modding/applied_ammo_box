@@ -16,20 +16,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = SentryArmBlockEntity.class,remap = false)
-public class MixinSentryArmBlockEntity {
+public abstract class MixinSentryArmBlockEntity {
     @Shadow
     @Final
     public NonNullList<ItemStack> attachedAmmoBoxes;
 
+    @Shadow
+    public abstract ItemStack getHeldItem();
+
     @Inject(method = "addAmmoBox",at = @At(value = "INVOKE", target = "net/minecraft/core/NonNullList.set(ILjava/lang/Object;)Ljava/lang/Object;"))
     private void applied_ammo_box$addAmmoBox(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
         if(stack.getItem() instanceof WirelessAmmoBoxItem wirelessAmmoBoxItem) {
+            // ワイヤレス弾薬箱の場合、設置された位置情報を保存する
             BlockEntity blockEntity = (BlockEntity)(Object)this;
             Level level = blockEntity.getLevel();
             BlockPos pos = blockEntity.getBlockPos();
             if(level == null) return;
             wirelessAmmoBoxItem.setLevel(stack,level);
             wirelessAmmoBoxItem.setPos(stack, pos);
+
+            // 手持ちの銃を取得する
+            ItemStack gunStack = this.getHeldItem();
+            wirelessAmmoBoxItem.updateAmmoId(stack, gunStack);
         }
     }
 

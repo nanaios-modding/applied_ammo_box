@@ -5,6 +5,7 @@ import appeng.core.localization.GuiText;
 import appeng.core.localization.PlayerMessages;
 import appeng.core.localization.Tooltips;
 import com.nanaios.applied_ammo_box.capabilitys.WirelessAmmoBoxCapabilityProvider;
+import com.nanaios.applied_ammo_box.config.AppliedAmmoBoxConfig;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper.ActionResult;
 import com.tacz.guns.api.DefaultAssets;
@@ -51,16 +52,16 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         // プレイヤーでなければ処理を中断
         if (!(entity instanceof Player player)) return;
 
-        // 弾薬箱の座標を取得
-        setPos(stack, player.blockPosition());
-        setLevel(stack, level);
-
         // 弾薬のIDを取得
         ItemStack iGunStack = player.getItemInHand(InteractionHand.MAIN_HAND);
         boolean isUpdate = updateAmmoId(stack, iGunStack);
 
         // 負荷軽減のため1秒に1回更新する
         if (isWantUpdate(stack) || isUpdate) {
+            // 弾薬箱の座標を取得
+            setPos(stack, player.blockPosition());
+            setLevel(stack, level);
+
             // タイムスタンプを更新
             setTimeStamp(stack, System.currentTimeMillis());
 
@@ -183,6 +184,9 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         // 弾薬をAE2ネットワークから取り出す
         ItemStack ammo = AmmoItemBuilder.create().setId(getAmmoId(ammoBox)).setCount(1).build();
         AE2LinkHelper.extractionAmmo(level, pos, ammoBox, ammo, diff, Actionable.MODULATE);
+
+        // エネルギーを消費
+        extractAEPower(ammoBox, AppliedAmmoBoxConfig.AMMO_BOX_USE_POWER_PER_AMMO.get() * diff, Actionable.MODULATE);
 
         // 弾薬数を再取得して設定
         updateAmmoCount(ammoBox);
