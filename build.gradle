@@ -113,9 +113,11 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     //連携mod
-    implementation fg.deobf("curse.maven:timeless-and-classics-zero-1028108:6654541")
+    implementation fg.deobf("curse.maven:timeless-and-classics-zero-1028108:7401617")
     implementation fg.deobf("appeng:appliedenergistics2-forge:15.4.8")
     implementation fg.deobf("curse.maven:aeinfinitybooster-559313:6482257")
+    implementation fg.deobf("curse.maven:create-sentry-mechanical-arm-1411575:7491255")
+    runtimeOnly fg.deobf("curse.maven:create-328085:7178761")
     runtimeOnly fg.deobf("curse.maven:curios-for-ammo-box-1339813:7529170")
 
     //jei

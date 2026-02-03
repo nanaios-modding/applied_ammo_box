@@ -13,8 +13,10 @@ import com.tacz.guns.api.item.IGun;
 import com.tacz.guns.api.item.builder.AmmoItemBuilder;
 import com.tacz.guns.item.AmmoBoxItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -29,14 +31,15 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPowerStorage, ITimeStamp, ILinkableItem {
-    public Level level;
-    public BlockPos pos;
+    public static String NBT_LEVEL_KEY = "ammoBoxExistLevel";
+    public static String NBT_BLOCK_POS_KEY = "ammoBoxExistBlockPos";
 
     @Override
     public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
@@ -49,15 +52,15 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         if (!(entity instanceof Player player)) return;
 
         // 弾薬箱の座標を取得
-        pos = player.blockPosition();
-        this.level = level;
+        setPos(stack, player.blockPosition());
+        setLevel(stack, level);
 
         // 弾薬のIDを取得
         ItemStack iGunStack = player.getItemInHand(InteractionHand.MAIN_HAND);
         boolean isUpdate = updateAmmoId(stack, iGunStack);
 
         // 負荷軽減のため1秒に1回更新する
-        if ((System.currentTimeMillis() - getTimeStamp(stack)) > 1000 || isUpdate) {
+        if (isWantUpdate(stack) || isUpdate) {
             // タイムスタンプを更新
             setTimeStamp(stack, System.currentTimeMillis());
 
@@ -70,6 +73,55 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
                         player.displayClientMessage(PlayerMessages.LinkedNetworkNotFound.text(), true);
             }
         }
+    }
+
+    /// 弾薬箱が存在するレベルを設定する
+    ///
+    /// @param stack 弾薬箱のItemStack
+    /// @param level レベル
+    public void setLevel(ItemStack stack,Level level) {
+        stack.getOrCreateTag().putString(NBT_LEVEL_KEY,level.dimension().location().toString());
+    }
+
+    /// 弾薬箱が存在するレベルを取得する
+    ///
+    /// @param stack 弾薬箱のItemStack
+    @Nullable
+    public Level getLevel(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag != null && tag.contains(NBT_LEVEL_KEY)) {
+            return ServerLifecycleHooks.getCurrentServer().getLevel(
+                    ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(tag.getString(NBT_LEVEL_KEY)))
+            );
+        }
+        return null;
+    }
+
+    /// 弾薬箱が存在する座標を設定する
+    ///
+    /// @param stack 弾薬箱のItemStack
+    /// @param pos   座標
+    public void setPos(ItemStack stack, BlockPos pos) {
+        stack.getOrCreateTag().putLong(NBT_BLOCK_POS_KEY, pos.asLong());
+    }
+
+    /// 弾薬箱が存在する座標を取得する
+    ///
+    /// @param stack 弾薬箱のItemStack
+    @Nullable
+    public BlockPos getPos(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag != null && tag.contains(NBT_BLOCK_POS_KEY)) {
+            return BlockPos.of(tag.getLong(NBT_BLOCK_POS_KEY));
+        }
+        return null;
+    }
+
+    /// 弾薬箱の情報を更新する必要があるかどうかを返す
+    ///
+    /// @param stack 弾薬箱のItemStack
+    public boolean isWantUpdate(ItemStack stack) {
+        return (System.currentTimeMillis() - getTimeStamp(stack)) > 1000;
     }
 
     /// 弾薬IDを銃から取得し更新する
@@ -100,8 +152,14 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     public ActionResult updateAmmoCount(ItemStack stack) {
         // 弾薬の情報を取得
         ItemStack ammo = AmmoItemBuilder.create().setId(getAmmoId(stack)).setCount(1).build();
+
+        // 弾薬箱が存在するレベルと座標を取得
+        BlockPos pos = getPos(stack);
+        Level level = getLevel(stack);
+        if (level == null || pos == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND, 0);
+
         // 弾薬数を更新
-        ActionResult result = AE2LinkHelper.extractionAmmo(level,pos, stack, ammo, Integer.MAX_VALUE, Actionable.SIMULATE);
+        ActionResult result = AE2LinkHelper.extractionAmmo(level, pos, stack, ammo, Integer.MAX_VALUE, Actionable.SIMULATE);
         // 弾薬箱の弾薬数を直接更新
         super.setAmmoCount(stack, result.count());
         // リンク状態を更新
@@ -117,9 +175,14 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         int diff = oldCount - count;
         if (diff <= 0) return;
 
+        // 弾薬箱が存在するレベルと座標を取得
+        BlockPos pos = getPos(ammoBox);
+        Level level = getLevel(ammoBox);
+        if (level == null || pos == null) return;
+
         // 弾薬をAE2ネットワークから取り出す
         ItemStack ammo = AmmoItemBuilder.create().setId(getAmmoId(ammoBox)).setCount(1).build();
-        AE2LinkHelper.extractionAmmo(level,pos, ammoBox, ammo, diff, Actionable.MODULATE);
+        AE2LinkHelper.extractionAmmo(level, pos, ammoBox, ammo, diff, Actionable.MODULATE);
 
         // 弾薬数を再取得して設定
         updateAmmoCount(ammoBox);
