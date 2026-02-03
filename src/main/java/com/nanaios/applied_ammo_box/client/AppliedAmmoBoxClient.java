@@ -1,7 +1,7 @@
 package com.nanaios.applied_ammo_box.client;
 
 import com.nanaios.applied_ammo_box.AppliedAmmoBox;
-import com.nanaios.applied_ammo_box.item.ILinkableItem;
+import com.nanaios.applied_ammo_box.item.WirelessAmmoBoxItem;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxItems;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
@@ -18,8 +18,8 @@ public class AppliedAmmoBoxClient {
                 AppliedAmmoBoxItems.AMMO_BOX.get(),
                 ResourceLocation.fromNamespaceAndPath(AppliedAmmoBox.MODID, "linked"),
                 (stack, level, entity, seed) -> {
-                    if (stack.getItem() instanceof ILinkableItem item) {
-                        if (item.isLinked(stack)) {
+                    if (stack.getItem() instanceof WirelessAmmoBoxItem item) {
+                        if (item.isLinked(stack) && item.getAECurrentPower(stack) > 0) {
                             return 1.0f;
                         } else {
                             return 0.0f;
