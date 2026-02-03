@@ -71,6 +71,7 @@ mixin {
 
     config "${mod_id}.mixins.json"
     config "${mod_id}.aeinfinitybooster.mixins.json"
+    config "${mod_id}.sentrymechanicalarm.mixins.json"
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }

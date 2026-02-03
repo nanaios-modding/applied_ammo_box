@@ -12,7 +12,7 @@ import com.tacz.guns.api.TimelessAPI;
 import com.tacz.guns.api.item.IGun;
 import com.tacz.guns.api.item.builder.AmmoItemBuilder;
 import com.tacz.guns.item.AmmoBoxItem;
-import net.minecraft.core.GlobalPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -35,7 +35,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPowerStorage, ITimeStamp, ILinkableItem {
-    public GlobalPos pos;
+    public Level level;
+    public BlockPos pos;
 
     @Override
     public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
@@ -48,7 +49,9 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         if (!(entity instanceof Player player)) return;
 
         // 弾薬箱の座標を取得
-        pos = GlobalPos.of(level.dimension(), entity.blockPosition());
+        pos = player.blockPosition();
+        this.level = level;
+
         // 弾薬のIDを取得
         ItemStack iGunStack = player.getItemInHand(InteractionHand.MAIN_HAND);
         boolean isUpdate = updateAmmoId(stack, iGunStack);
@@ -98,7 +101,7 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         // 弾薬の情報を取得
         ItemStack ammo = AmmoItemBuilder.create().setId(getAmmoId(stack)).setCount(1).build();
         // 弾薬数を更新
-        ActionResult result = AE2LinkHelper.extractionAmmo(pos, stack, ammo, Integer.MAX_VALUE, Actionable.SIMULATE);
+        ActionResult result = AE2LinkHelper.extractionAmmo(level,pos, stack, ammo, Integer.MAX_VALUE, Actionable.SIMULATE);
         // 弾薬箱の弾薬数を直接更新
         super.setAmmoCount(stack, result.count());
         // リンク状態を更新
@@ -116,7 +119,7 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
 
         // 弾薬をAE2ネットワークから取り出す
         ItemStack ammo = AmmoItemBuilder.create().setId(getAmmoId(ammoBox)).setCount(1).build();
-        AE2LinkHelper.extractionAmmo(pos, ammoBox, ammo, diff, Actionable.MODULATE);
+        AE2LinkHelper.extractionAmmo(level,pos, ammoBox, ammo, diff, Actionable.MODULATE);
 
         // 弾薬数を再取得して設定
         updateAmmoCount(ammoBox);

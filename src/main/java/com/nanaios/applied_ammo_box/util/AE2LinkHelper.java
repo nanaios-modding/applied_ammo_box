@@ -23,6 +23,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +40,7 @@ public class AE2LinkHelper {
     /// @param ammo    弾薬のItemStack
     /// @param count   更新する弾薬数の上限
     /// @param mode    抽出モード
-    public static ActionResult extractionAmmo(GlobalPos pos, ItemStack ammoBox, ItemStack ammo, int count, Actionable mode) {
+    public static ActionResult extractionAmmo(Level level, BlockPos pos, ItemStack ammoBox, ItemStack ammo, int count, Actionable mode) {
         // 座標を取得
         GlobalPos linkPos = AE2LinkHelper.getLinkedPosition(ammoBox);
         if (linkPos == null) return new ActionResult(ActionResult.Status.DEVICE_NOT_LINKED, 0);
@@ -49,7 +50,7 @@ public class AE2LinkHelper {
         if (grid == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND, 0);
 
         // 有効範囲内のアクセスポイントを取得
-        IWirelessAccessPoint wap = AE2LinkHelper.getBestWap(grid, pos);
+        IWirelessAccessPoint wap = AE2LinkHelper.getBestWap(grid, level, pos);
         if (wap == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND, 0);
 
         // グリッドノードを取得
@@ -103,18 +104,13 @@ public class AE2LinkHelper {
     ///
     /// @param grid チェック対象のAE2グリッド
     /// @param pos  チェック対象の座標
-    public static @Nullable IWirelessAccessPoint getBestWap(IGrid grid, GlobalPos pos) {
+    public static @Nullable IWirelessAccessPoint getBestWap(IGrid grid,Level level, BlockPos pos) {
         IWirelessAccessPoint bestWap = null;
         double bestSqDistance = Double.MAX_VALUE;
 
-        // 座標のレベルを取得
-        ServerLevel level = ServerLifecycleHooks.getCurrentServer().getLevel(pos.dimension());
-        if (level == null) return null;
-
-
         // 最も近いかつ有効なアクセスポイントを見つける
         for (WirelessAccessPointBlockEntity wap : grid.getMachines(WirelessAccessPointBlockEntity.class)) {
-            double sqDistance = getWapSqDistance(wap, pos.pos(), level);
+            double sqDistance = getWapSqDistance(wap, pos, level);
             if (sqDistance < bestSqDistance) {
                 bestSqDistance = sqDistance;
                 bestWap = wap;
@@ -130,7 +126,7 @@ public class AE2LinkHelper {
     /// @param wap   対象のアクセスポイント
     /// @param pos   距離を測定する座標
     /// @param level 座標が存在するレベル
-    public static double getWapSqDistance(WirelessAccessPointBlockEntity wap, BlockPos pos, ServerLevel level) {
+    public static double getWapSqDistance(WirelessAccessPointBlockEntity wap, BlockPos pos, Level level) {
         // アクセスポイントがアクティブでない場合は無効な距離を返す
         if (!wap.isActive()) return Double.MAX_VALUE;
 
