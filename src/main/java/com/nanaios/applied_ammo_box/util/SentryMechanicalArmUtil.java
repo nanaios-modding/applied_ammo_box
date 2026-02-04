@@ -1,4 +1,4 @@
-package com.nanaios.applied_ammo_box.mixin.sentrymechanicalarm;
+package com.nanaios.applied_ammo_box.util;
 
 import com.nanaios.applied_ammo_box.item.WirelessAmmoBoxItem;
 import net.minecraft.core.NonNullList;

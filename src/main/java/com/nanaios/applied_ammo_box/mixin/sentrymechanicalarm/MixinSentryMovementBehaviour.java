@@ -1,6 +1,7 @@
 package com.nanaios.applied_ammo_box.mixin.sentrymechanicalarm;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.nanaios.applied_ammo_box.util.SentryMechanicalArmUtil;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import euphy.upo.sentrymechanicalarm.content.SentryMovementBehaviour;
 import euphy.upo.sentrymechanicalarm.content.VirtualSentryArmBlockEntity;

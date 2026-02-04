@@ -2,6 +2,7 @@ package com.nanaios.applied_ammo_box.mixin.sentrymechanicalarm;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.nanaios.applied_ammo_box.item.WirelessAmmoBoxItem;
+import com.nanaios.applied_ammo_box.util.SentryMechanicalArmUtil;
 import euphy.upo.sentrymechanicalarm.content.SentryArmBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
