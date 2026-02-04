@@ -8,6 +8,7 @@ import com.nanaios.applied_ammo_box.capabilitys.WirelessAmmoBoxCapabilityProvide
 import com.nanaios.applied_ammo_box.config.AppliedAmmoBoxConfig;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper.ActionResult;
+import com.nanaios.applied_ammo_box.util.AppliedAmmoBoxMessages;
 import com.tacz.guns.api.DefaultAssets;
 import com.tacz.guns.api.TimelessAPI;
 import com.tacz.guns.api.item.IGun;
@@ -21,6 +22,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
@@ -41,6 +43,24 @@ import java.util.List;
 public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPowerStorage, ITimeStamp, ILinkableItem {
     public static String NBT_LEVEL_KEY = "ammoBoxExistLevel";
     public static String NBT_BLOCK_POS_KEY = "ammoBoxExistBlockPos";
+
+    @Override
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+        // 手に持っているアイテムを取得
+        ItemStack stack = player.getItemInHand(hand);
+
+        // スニーク状態で使用した時に弾薬のデータをリセットする
+        if (player.isCrouching()) {
+            if (!level.isClientSide) {
+                clearAmmoData(stack);
+                player.displayClientMessage(AppliedAmmoBoxMessages.CLEAR_AMMO_DATA.get(), true);
+            }
+
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        }
+
+        return InteractionResultHolder.pass(stack);
+    }
 
     @Override
     public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
@@ -73,6 +93,22 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
                 case LINKED_NETWORK_NOT_FOUND ->
                         player.displayClientMessage(PlayerMessages.LinkedNetworkNotFound.text(), true);
             }
+        }
+    }
+
+    public void clearAmmoData(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+
+        if(tag == null) return;
+
+        // 弾薬IDを削除
+        if (tag.contains("AmmoId")) {
+            tag.remove("AmmoId");
+        }
+
+        // 弾薬数を削除
+        if(tag.contains("AmmoCount")) {
+            tag.remove("AmmoCount");
         }
     }
 

@@ -103,6 +103,10 @@ repositories {
         url = "https://maven.theillusivec4.top/"
     }
 
+    maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
+    maven { url = "https://maven.ithundxr.dev/mirror" } // Registrate
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // ForgeConfigAPIPort
+
     flatDir {
         dirs 'run/mods'
     }
@@ -117,7 +121,13 @@ dependencies {
     implementation fg.deobf("appeng:appliedenergistics2-forge:15.4.8")
     implementation fg.deobf("curse.maven:aeinfinitybooster-559313:6482257")
     implementation fg.deobf("curse.maven:create-sentry-mechanical-arm-1411575:7491255")
-    runtimeOnly fg.deobf("curse.maven:create-328085:7178761")
+
+    implementation(fg.deobf("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false })
+    implementation(fg.deobf("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}"))
+    compileOnly(fg.deobf("dev.engine-room.flywheel:flywheel-forge-api-${minecraft_version}:${flywheel_version}"))
+    runtimeOnly(fg.deobf("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}"))
+    implementation(fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}"))
+
     runtimeOnly fg.deobf("curse.maven:curios-for-ammo-box-1339813:7529170")
 
     //jei

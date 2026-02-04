@@ -29,7 +29,7 @@ public abstract class MixinSentryArmBlockEntity {
     private void applied_ammo_box$addAmmoBox(ItemStack ignore, CallbackInfoReturnable<Boolean> cir, @Local(name = "copy") ItemStack copy) {
         if(copy.getItem() instanceof WirelessAmmoBoxItem wirelessAmmoBoxItem) {
             // ワイヤレス弾薬箱の場合、設置された位置情報を保存する
-            BlockEntity blockEntity = (BlockEntity)(Object)this;
+            BlockEntity blockEntity = (SentryArmBlockEntity)(Object)this;
             Level level = blockEntity.getLevel();
             if(level == null || level.isClientSide) return;
             BlockPos pos = blockEntity.getBlockPos();
@@ -44,20 +44,8 @@ public abstract class MixinSentryArmBlockEntity {
 
     @Inject(method = "tick",at = @At("HEAD"))
     private void applied_ammo_box$tick(CallbackInfo ci) {
-        Level level = ((BlockEntity)(Object)this).getLevel();
-
-        // サーバーサイドでのみ処理を行う
-        if(level != null && level.isClientSide) return;
-
-        for(ItemStack itemStack : this.attachedAmmoBoxes) {
-            if(itemStack.isEmpty()) continue;
-            if(!(itemStack.getItem() instanceof WirelessAmmoBoxItem wirelessAmmoBoxItem)) continue;
-            if(!wirelessAmmoBoxItem.isWantUpdate(itemStack)) continue;
-
-            // 設置されたタイムスタンプを更新する
-            wirelessAmmoBoxItem.setTimeStamp(itemStack, System.currentTimeMillis());
-
-            wirelessAmmoBoxItem.updateAmmoCount(itemStack);
-        }
+        Level level = ((SentryArmBlockEntity)(Object)this).getLevel();
+        if(level == null) return;
+        SentryMechanicalArmUtil.updateAttachedAmmoBoxes(level, attachedAmmoBoxes);
     }
 }
