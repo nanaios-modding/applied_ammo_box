@@ -4,6 +4,7 @@ import appeng.api.config.Actionable;
 import appeng.core.localization.GuiText;
 import appeng.core.localization.PlayerMessages;
 import appeng.core.localization.Tooltips;
+import com.nanaios.applied_ammo_box.AppliedAmmoBox;
 import com.nanaios.applied_ammo_box.capabilitys.WirelessAmmoBoxCapabilityProvider;
 import com.nanaios.applied_ammo_box.config.AppliedAmmoBoxConfig;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
@@ -201,6 +202,8 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         super.setAmmoCount(stack, result.count());
         // リンク状態を更新
         this.setLinked(stack, result.status() == ActionResult.Status.SUCCESS);
+
+        AppliedAmmoBox.LOGGER.info("Updating ammo count for Wireless Ammo Box to {}", result.count());
 
         return result;
     }
