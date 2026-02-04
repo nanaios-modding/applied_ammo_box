@@ -11,7 +11,7 @@
   "mixins": [
     "MixinSentryArmBlockEntity",
     "MixinSentryMovementBehaviour",
-    "MixinVirtualSentryArmBlockEntity",
+    "MixinVirtualSentryArmBlockEntity"
   ],
   "client": [],
   "injectors": {
