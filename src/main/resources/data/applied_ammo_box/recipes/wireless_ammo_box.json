@@ -1,5 +1,5 @@
 {
-  "type": "applied_ammo_box:shaped_nbt",
+  "type": "minecraft:crafting_shaped",
   "pattern": [
     "aba",
     "cdf",
@@ -16,8 +16,11 @@
       "item": "ae2:controller"
     },
     "d": {
+      "type": "forge:nbt",
       "item": "tacz:ammo_box",
-      "nbt": { "Level": 2 }
+      "nbt": {
+        "Level": 2
+      }
     },
     "e": {
       "item": "ae2:singularity"

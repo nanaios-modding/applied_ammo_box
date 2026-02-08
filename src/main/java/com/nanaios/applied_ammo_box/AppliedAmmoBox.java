@@ -1,8 +1,6 @@
 package com.nanaios.applied_ammo_box;
 
 import com.nanaios.applied_ammo_box.config.AppliedAmmoBoxConfig;
-import com.nanaios.applied_ammo_box.recipes.AppliedAmmoBoxRecipes;
-import com.nanaios.applied_ammo_box.recipes.NbtIngredient;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxCreativeTabs;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxGridLinkables;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxItems;
@@ -26,7 +24,6 @@ public class AppliedAmmoBox {
 
         AppliedAmmoBoxItems.ITEMS.register(modEventBus);
         AppliedAmmoBoxCreativeTabs.TABS.register(modEventBus);
-        AppliedAmmoBoxRecipes.SERIALIZERS.register(modEventBus);
 
         context.registerConfig(ModConfig.Type.COMMON,AppliedAmmoBoxConfig.init());
 
@@ -34,7 +31,6 @@ public class AppliedAmmoBox {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(NbtIngredient::register);
         event.enqueueWork(AppliedAmmoBoxGridLinkables::register);
     }
     public static ResourceLocation rl(String path) {

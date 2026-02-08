@@ -14,11 +14,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public record WirelessAmmoBoxCapabilityProvider(ItemStack stack, IAEItemPowerStorage item) implements ICapabilityProvider,IEnergyStorage {
-    @SuppressWarnings("unchecked")
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ENERGY) {
-            return (LazyOptional<T>) LazyOptional.of(() -> this);
+            return LazyOptional.of(() -> this).cast();
         }
         return LazyOptional.empty();
     }
