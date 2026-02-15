@@ -4,8 +4,6 @@ import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
 import appeng.api.implementations.items.IAEItemPowerStorage;
 import appeng.core.AEConfig;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
 public interface IDefaultAEItemPowerStorage extends IAEItemPowerStorage {
