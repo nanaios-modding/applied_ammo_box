@@ -3,7 +3,6 @@ package com.nanaios.applied_ammo_box.mixin.aeinfinitybooster;
 import appeng.blockentity.networking.WirelessAccessPointBlockEntity;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
