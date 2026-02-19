@@ -4,11 +4,11 @@ import appeng.api.config.Actionable;
 import appeng.core.localization.GuiText;
 import appeng.core.localization.PlayerMessages;
 import appeng.core.localization.Tooltips;
+import com.nanaios.applied_ammo_box.AppliedAmmoBoxLang;
 import com.nanaios.applied_ammo_box.capabilitys.WirelessAmmoBoxCapabilityProvider;
 import com.nanaios.applied_ammo_box.config.AppliedAmmoBoxConfig;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper.ActionResult;
-import com.nanaios.applied_ammo_box.util.AppliedAmmoBoxMessages;
 import com.tacz.guns.api.DefaultAssets;
 import com.tacz.guns.api.TimelessAPI;
 import com.tacz.guns.api.item.IGun;
@@ -53,7 +53,7 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         if (player.isCrouching()) {
             if (!level.isClientSide) {
                 clearAmmoData(stack);
-                player.displayClientMessage(AppliedAmmoBoxMessages.CLEAR_AMMO_DATA.get(), true);
+                player.displayClientMessage(AppliedAmmoBoxLang.CLEAR_AMMO_MESSAGE.get(), true);
             }
 
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
@@ -256,7 +256,7 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
 
     @Override
     public @NotNull Component getName(ItemStack stack) {
-        return Component.translatable("item.applied_ammo_box.ammo_box");
+        return AppliedAmmoBoxLang.WIRELESS_AMMO_BOX_NAME.get();
     }
 
     @Override

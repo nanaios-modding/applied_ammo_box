@@ -5,12 +5,14 @@ import net.minecraftforge.common.ForgeConfigSpec;
 public class AppliedAmmoBoxConfig {
 
     public static ForgeConfigSpec.DoubleValue AMMO_BOX_USE_POWER_PER_AMMO;
+    public static ForgeConfigSpec.BooleanValue GENERATE_CREATIVE_TAB;
 
     public static ForgeConfigSpec init() {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
         //init config
         initPowerConfig(builder);
+        initCreativeTabConfig(builder);
 
         return builder.build();
     }
@@ -20,6 +22,15 @@ public class AppliedAmmoBoxConfig {
 
         builder.comment("Energy consumed per round of ammo retrieved from an ammo box, default: 1000.0");
         AMMO_BOX_USE_POWER_PER_AMMO = builder.defineInRange("AmmoBoxUsePowerPerAmmo",1000.0,0.0,Double.MAX_VALUE);
+
+        builder.pop();
+    }
+
+    private static void initCreativeTabConfig(ForgeConfigSpec.Builder builder) {
+        builder.push("creative_tab");
+
+        builder.comment("Sets whether to generate a creative tab for AppliedAmmoBox, default: true");
+        GENERATE_CREATIVE_TAB = builder.define("GenerateCreativeTab",true);
 
         builder.pop();
     }

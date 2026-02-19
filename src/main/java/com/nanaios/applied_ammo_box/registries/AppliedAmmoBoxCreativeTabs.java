@@ -1,36 +1,27 @@
 package com.nanaios.applied_ammo_box.registries;
 
-import appeng.api.config.Actionable;
-import appeng.api.implementations.items.IAEItemPowerStorage;
 import com.nanaios.applied_ammo_box.AppliedAmmoBox;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
+import com.nanaios.applied_ammo_box.AppliedAmmoBoxLang;
+import com.nanaios.applied_ammo_box.config.AppliedAmmoBoxConfig;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.RegisterEvent;
 
 public class AppliedAmmoBoxCreativeTabs {
-    public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, AppliedAmmoBox.MODID);
 
-    static {
-        TABS.register("applied_ammo_box_tab",() -> CreativeModeTab.builder()
-                .title(Component.translatable("itemGroup." + AppliedAmmoBox.MODID + ".creative_tab"))
-                .icon(() -> new ItemStack(AppliedAmmoBoxItems.AMMO_BOX.get()))
-                .displayItems((params, output) -> {
-                    for(RegistryObject<Item> registry : AppliedAmmoBoxItems.ITEMS.getEntries()){
-                        Item item = registry.get();
-                        output.accept(item);
+    public static void register(RegisterEvent.RegisterHelper<CreativeModeTab> helper) {
 
-                        // 満充電のアイテムも追加する
-                        if(item instanceof IAEItemPowerStorage powered) {
-                            ItemStack poweredStack = new ItemStack(item,1);
-                            powered.injectAEPower(poweredStack, powered.getAEMaxPower(poweredStack), Actionable.MODULATE);
-                            output.accept(poweredStack);
-                        }
-                    }
-                }).build()
+        // クリエイティブタブの生成が有効でない場合は、登録をスキップ
+        if(!AppliedAmmoBoxConfig.GENERATE_CREATIVE_TAB.get()) return;
+
+        helper.register(
+                ResourceLocation.fromNamespaceAndPath(AppliedAmmoBox.MODID,"applied_ammo_box_tab"),
+                CreativeModeTab.builder()
+                        .title(AppliedAmmoBoxLang.CREATIVE_TAB_NAME.get())
+                        .icon(() -> new ItemStack(AppliedAmmoBoxItems.AMMO_BOX.get()))
+                        .displayItems((params, output) -> AppliedAmmoBoxItems.registerCreativeTab(output))
+                        .build()
         );
     }
 }
