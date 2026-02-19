@@ -4,7 +4,6 @@ import com.nanaios.applied_ammo_box.config.AppliedAmmoBoxConfig;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxCreativeTabs;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxGridLinkables;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxItems;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -32,8 +31,5 @@ public class AppliedAmmoBox {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(AppliedAmmoBoxGridLinkables::register);
-    }
-    public static ResourceLocation rl(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 }
