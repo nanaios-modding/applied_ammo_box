@@ -206,6 +206,12 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     }
 
     @Override
+    public boolean isAmmoBoxOfGun(ItemStack gun, ItemStack ammoBox) {
+        if(getAmmoCount(ammoBox) <= 0) return false;
+        return super.isAmmoBoxOfGun(gun, ammoBox);
+    }
+
+    @Override
     public void setAmmoCount(ItemStack ammoBox, int count) {
         //弾薬が減少している個数を計算
         int oldCount = this.getAmmoCount(ammoBox);
