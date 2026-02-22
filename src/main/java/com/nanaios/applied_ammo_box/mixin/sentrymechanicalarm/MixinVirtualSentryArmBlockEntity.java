@@ -11,23 +11,23 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = VirtualSentryArmBlockEntity.class,remap = false)
+@Mixin(value = VirtualSentryArmBlockEntity.class, remap = false)
 public class MixinVirtualSentryArmBlockEntity {
-    @Inject(method = "setVirtualLevel",at = @At("HEAD"))
+    @Inject(method = "setVirtualLevel", at = @At("HEAD"))
     private void applied_ammo_box$setVirtualLevel(Level level, CallbackInfo ci) {
-        NonNullList<ItemStack> attachedAmmoBoxes = ((VirtualSentryArmBlockEntity)(Object)this).attachedAmmoBoxes;
-        for(ItemStack stack: attachedAmmoBoxes) {
-            if(stack.getItem() instanceof WirelessAmmoBoxItem wirelessAmmoBoxItem) {
+        NonNullList<ItemStack> attachedAmmoBoxes = ((VirtualSentryArmBlockEntity) (Object) this).attachedAmmoBoxes;
+        for (ItemStack stack : attachedAmmoBoxes) {
+            if (stack.getItem() instanceof WirelessAmmoBoxItem wirelessAmmoBoxItem) {
                 wirelessAmmoBoxItem.setLevel(stack, level);
             }
         }
     }
 
-    @Inject(method = "setVirtualPos",at = @At("HEAD"))
+    @Inject(method = "setVirtualPos", at = @At("HEAD"))
     private void applied_ammo_box$setVirtualPos(BlockPos pos, CallbackInfo ci) {
-        NonNullList<ItemStack> attachedAmmoBoxes = ((VirtualSentryArmBlockEntity)(Object)this).attachedAmmoBoxes;
-        for(ItemStack stack: attachedAmmoBoxes) {
-            if(stack.getItem() instanceof WirelessAmmoBoxItem wirelessAmmoBoxItem) {
+        NonNullList<ItemStack> attachedAmmoBoxes = ((VirtualSentryArmBlockEntity) (Object) this).attachedAmmoBoxes;
+        for (ItemStack stack : attachedAmmoBoxes) {
+            if (stack.getItem() instanceof WirelessAmmoBoxItem wirelessAmmoBoxItem) {
                 wirelessAmmoBoxItem.setPos(stack, pos);
             }
         }

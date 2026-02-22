@@ -13,7 +13,8 @@ import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public record WirelessAmmoBoxCapabilityProvider(ItemStack stack, IAEItemPowerStorage item) implements ICapabilityProvider,IEnergyStorage {
+public record WirelessAmmoBoxCapabilityProvider(ItemStack stack,
+                                                IAEItemPowerStorage item) implements ICapabilityProvider, IEnergyStorage {
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ENERGY) {

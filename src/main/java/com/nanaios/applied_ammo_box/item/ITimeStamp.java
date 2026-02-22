@@ -9,6 +9,7 @@ public interface ITimeStamp {
     String TAG_TIME_STAMP = "lastCheckedTimeStamp";
 
     /// タイムスタンプを取得する
+    ///
     /// @param stack 対象のItemStack
     default long getTimeStamp(ItemStack stack) {
         CompoundTag tag = stack.getOrCreateTag();
@@ -16,10 +17,11 @@ public interface ITimeStamp {
     }
 
     /// タイムスタンプを設定する
+    ///
     /// @param stack 対象のItemStack
     /// @param value 設定するタイムスタンプの値
     default void setTimeStamp(ItemStack stack, long value) {
         CompoundTag tag = stack.getOrCreateTag();
-        tag.putLong(TAG_TIME_STAMP,value);
+        tag.putLong(TAG_TIME_STAMP, value);
     }
 }

@@ -99,7 +99,7 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     public void clearAmmoData(ItemStack stack) {
         CompoundTag tag = stack.getTag();
 
-        if(tag == null) return;
+        if (tag == null) return;
 
         // 弾薬IDを削除
         if (tag.contains("AmmoId")) {
@@ -107,7 +107,7 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
         }
 
         // 弾薬数を削除
-        if(tag.contains("AmmoCount")) {
+        if (tag.contains("AmmoCount")) {
             tag.remove("AmmoCount");
         }
     }
@@ -116,8 +116,8 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     ///
     /// @param stack 弾薬箱のItemStack
     /// @param level レベル
-    public void setLevel(ItemStack stack,Level level) {
-        stack.getOrCreateTag().putString(NBT_LEVEL_KEY,level.dimension().location().toString());
+    public void setLevel(ItemStack stack, Level level) {
+        stack.getOrCreateTag().putString(NBT_LEVEL_KEY, level.dimension().location().toString());
     }
 
     /// 弾薬箱が存在するレベルを取得する
@@ -207,7 +207,7 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
 
     @Override
     public boolean isAmmoBoxOfGun(ItemStack gun, ItemStack ammoBox) {
-        if(getAmmoCount(ammoBox) <= 0) return false;
+        if (getAmmoCount(ammoBox) <= 0) return false;
         return super.isAmmoBoxOfGun(gun, ammoBox);
     }
 

@@ -5,7 +5,6 @@ import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxCreativeTabs;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxGridLinkables;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxItems;
 import com.tacz.guns.GunMod;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -16,7 +15,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,7 +36,9 @@ public class AppliedAmmoBox {
         IEventBus modEventBus = context.getModEventBus();
         AppliedAmmoBoxItems.ITEMS.register(modEventBus);
 
-
+        // クリエイティブタブの登録
+        LOGGER.info("Registering Applied Ammo Box creative tabs...");
+        AppliedAmmoBoxCreativeTabs.TABS.register(modEventBus);
     }
 
     @SubscribeEvent
@@ -46,13 +46,6 @@ public class AppliedAmmoBox {
         // リンク可能なアイテムの登録
         LOGGER.info("Registering Applied Ammo Box grid linkables...");
         event.enqueueWork(AppliedAmmoBoxGridLinkables::register);
-    }
-
-    @SubscribeEvent
-    public static void onRegister(RegisterEvent event) {
-        // クリエイティブタブの登録かどうかを確認
-        if (!event.getRegistryKey().equals(Registries.CREATIVE_MODE_TAB)) return;
-        event.register(Registries.CREATIVE_MODE_TAB, AppliedAmmoBoxCreativeTabs::register);
     }
 
     @SubscribeEvent

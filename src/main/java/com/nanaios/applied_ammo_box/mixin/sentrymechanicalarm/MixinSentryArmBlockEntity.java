@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = SentryArmBlockEntity.class,remap = false)
+@Mixin(value = SentryArmBlockEntity.class, remap = false)
 public abstract class MixinSentryArmBlockEntity {
     @Shadow
     @Final
@@ -26,15 +26,15 @@ public abstract class MixinSentryArmBlockEntity {
     @Shadow
     public abstract ItemStack getHeldItem();
 
-    @Inject(method = "addAmmoBox",at = @At(value = "INVOKE", target = "net/minecraft/core/NonNullList.set(ILjava/lang/Object;)Ljava/lang/Object;"))
+    @Inject(method = "addAmmoBox", at = @At(value = "INVOKE", target = "net/minecraft/core/NonNullList.set(ILjava/lang/Object;)Ljava/lang/Object;"))
     private void applied_ammo_box$addAmmoBox(ItemStack ignore, CallbackInfoReturnable<Boolean> cir, @Local(name = "copy") ItemStack copy) {
-        if(copy.getItem() instanceof WirelessAmmoBoxItem wirelessAmmoBoxItem) {
+        if (copy.getItem() instanceof WirelessAmmoBoxItem wirelessAmmoBoxItem) {
             // ワイヤレス弾薬箱の場合、設置された位置情報を保存する
-            BlockEntity blockEntity = (SentryArmBlockEntity)(Object)this;
+            BlockEntity blockEntity = (SentryArmBlockEntity) (Object) this;
             Level level = blockEntity.getLevel();
-            if(level == null || level.isClientSide) return;
+            if (level == null || level.isClientSide) return;
             BlockPos pos = blockEntity.getBlockPos();
-            wirelessAmmoBoxItem.setLevel(copy,level);
+            wirelessAmmoBoxItem.setLevel(copy, level);
             wirelessAmmoBoxItem.setPos(copy, pos);
 
             // 手持ちの銃を取得する
@@ -43,10 +43,10 @@ public abstract class MixinSentryArmBlockEntity {
         }
     }
 
-    @Inject(method = "tick",at = @At("HEAD"))
+    @Inject(method = "tick", at = @At("HEAD"))
     private void applied_ammo_box$tick(CallbackInfo ci) {
-        Level level = ((SentryArmBlockEntity)(Object)this).getLevel();
-        if(level == null) return;
+        Level level = ((SentryArmBlockEntity) (Object) this).getLevel();
+        if (level == null) return;
         SentryMechanicalArmUtil.updateAttachedAmmoBoxes(level, attachedAmmoBoxes);
     }
 }

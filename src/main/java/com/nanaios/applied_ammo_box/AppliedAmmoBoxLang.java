@@ -10,9 +10,11 @@ public enum AppliedAmmoBoxLang {
 
 
     final String key;
+
     AppliedAmmoBoxLang(String key) {
         this.key = key;
     }
+
     public MutableComponent get(Object... args) {
         return Component.translatable(key, args);
     }

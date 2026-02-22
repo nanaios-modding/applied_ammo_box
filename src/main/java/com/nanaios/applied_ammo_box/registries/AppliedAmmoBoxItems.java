@@ -17,13 +17,13 @@ public class AppliedAmmoBoxItems {
     public static RegistryObject<Item> AMMO_BOX = ITEMS.register("ammo_box", WirelessAmmoBoxItem::new);
 
     public static void registerCreativeTab(CreativeModeTab.Output output) {
-        for(RegistryObject<Item> registry : AppliedAmmoBoxItems.ITEMS.getEntries()){
+        for (RegistryObject<Item> registry : ITEMS.getEntries()) {
             Item item = registry.get();
             output.accept(item);
 
             // 満充電のアイテムも追加する
-            if(item instanceof IAEItemPowerStorage powered) {
-                ItemStack poweredStack = new ItemStack(item,1);
+            if (item instanceof IAEItemPowerStorage powered) {
+                ItemStack poweredStack = new ItemStack(item, 1);
                 powered.injectAEPower(poweredStack, powered.getAEMaxPower(poweredStack), Actionable.MODULATE);
                 output.accept(poweredStack);
             }

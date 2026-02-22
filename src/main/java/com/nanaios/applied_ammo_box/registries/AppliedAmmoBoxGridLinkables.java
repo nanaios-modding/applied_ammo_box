@@ -7,6 +7,6 @@ import net.minecraft.world.item.Item;
 public class AppliedAmmoBoxGridLinkables {
     public static void register() {
         Item item = AppliedAmmoBoxItems.AMMO_BOX.get();
-        GridLinkables.register(item,new LinkableHandler());
+        GridLinkables.register(item, new LinkableHandler());
     }
 }

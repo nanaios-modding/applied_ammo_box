@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import uk.co.hexeption.aeinfinitybooster.setup.ModItems;
 
-@Mixin(value = AE2LinkHelper.class,remap = false)
+@Mixin(value = AE2LinkHelper.class, remap = false)
 public class MixinAE2LinkHelper {
-    @Inject(method = "getWapSqDistance",at =@At("HEAD"), cancellable = true)
+    @Inject(method = "getWapSqDistance", at = @At("HEAD"), cancellable = true)
     private static void applied_ammo_box$mixinGetWapSqDistance(WirelessAccessPointBlockEntity wap, BlockPos pos, Level level, CallbackInfoReturnable<Double> cir) {
         // Dimensionカード装着時はディメンションを問わず1024mに設定
         if (wap.getInternalInventory().getStackInSlot(0).is(ModItems.DIMENSION_CARD.get())) {
@@ -20,7 +20,7 @@ public class MixinAE2LinkHelper {
         }
 
         //  Dimensionカード装着時以外は次元が違う場合は処理しない
-        if(wap.getLocation().getLevel() != level) {
+        if (wap.getLocation().getLevel() != level) {
             return;
         }
 
