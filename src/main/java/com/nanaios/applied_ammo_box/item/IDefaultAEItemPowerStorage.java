@@ -43,8 +43,8 @@ public interface IDefaultAEItemPowerStorage extends IAEItemPowerStorage {
     }
 
     @Override
-    default double getAECurrentPower(ItemStack is) {
-        var tag = is.getTag();
+    default double getAECurrentPower(ItemStack stack) {
+        var tag = stack.getTag();
         if (tag != null) {
             return tag.getDouble(CURRENT_POWER_NBT_KEY);
         } else {
@@ -61,7 +61,7 @@ public interface IDefaultAEItemPowerStorage extends IAEItemPowerStorage {
     }
 
     @Override
-    default AccessRestriction getPowerFlow(ItemStack is) {
+    default AccessRestriction getPowerFlow(ItemStack stack) {
         return AccessRestriction.WRITE;
     }
 

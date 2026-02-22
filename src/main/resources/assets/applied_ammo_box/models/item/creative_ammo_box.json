@@ -1,0 +1,12 @@
+{
+  "overrides": [
+    {
+      "predicate": { "applied_ammo_box:linked": 0 },
+      "model": "applied_ammo_box:item/ammo_box_off"
+    },
+    {
+      "predicate": { "applied_ammo_box:linked": 1 },
+      "model": "applied_ammo_box:item/ammo_box_on"
+    }
+  ]
+}
