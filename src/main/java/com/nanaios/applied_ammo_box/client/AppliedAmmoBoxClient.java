@@ -19,7 +19,7 @@ import net.minecraftforge.registries.RegistryObject;
 public class AppliedAmmoBoxClient {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        for(RegistryObject<Item> registry : AppliedAmmoBoxItems.ITEMS.getEntries()) {
+        for(RegistryObject<Item> registry : AppliedAmmoBoxItems.WIRELESS_ITEMS.getEntries()) {
             Item item = registry.get();
 
             ItemProperties.register(

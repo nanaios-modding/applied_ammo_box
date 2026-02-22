@@ -5,7 +5,6 @@ import appeng.api.config.Actionable;
 import appeng.core.localization.GuiText;
 import appeng.core.localization.Tooltips;
 import com.nanaios.applied_ammo_box.AppliedAmmoBoxLang;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -15,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class CreativeWirelessAmmoBoxItem extends WirelessAmmoBoxItem {
-    public static String NBT_FOILED = "Foiled";
 
     public CreativeWirelessAmmoBoxItem() {
         super();
@@ -31,17 +29,13 @@ public class CreativeWirelessAmmoBoxItem extends WirelessAmmoBoxItem {
     }
 
     @Override
-    public @NotNull Component getName(ItemStack stack) {
-        return AppliedAmmoBoxLang.CREATIVE_WIRELESS_AMMO_BOX_NAME.get();
+    public boolean isFoil(ItemStack stack) {
+        return true;
     }
 
     @Override
-    public boolean isFoil(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag != null && tag.contains(NBT_FOILED)) {
-            return tag.getBoolean(NBT_FOILED);
-        }
-        return true;
+    public @NotNull Component getName(ItemStack stack) {
+        return AppliedAmmoBoxLang.CREATIVE_WIRELESS_AMMO_BOX_NAME.get();
     }
 
     @Override
@@ -68,8 +62,6 @@ public class CreativeWirelessAmmoBoxItem extends WirelessAmmoBoxItem {
     public double getAECurrentPower(ItemStack stack) {
         return Double.MAX_VALUE;
     }
-
-
 
     @Override
     public AccessRestriction getPowerFlow(ItemStack itemStack) {

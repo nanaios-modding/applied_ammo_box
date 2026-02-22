@@ -34,7 +34,8 @@ public class AppliedAmmoBox {
         // アイテムの登録
         LOGGER.info("Registering Applied Ammo Box items...");
         IEventBus modEventBus = context.getModEventBus();
-        AppliedAmmoBoxItems.ITEMS.register(modEventBus);
+        AppliedAmmoBoxItems.WIRELESS_ITEMS.register(modEventBus);
+        AppliedAmmoBoxItems.FAKE_ITEMS.register(modEventBus);
 
         // クリエイティブタブの登録
         LOGGER.info("Registering Applied Ammo Box creative tabs...");
@@ -42,7 +43,7 @@ public class AppliedAmmoBox {
     }
 
     @SubscribeEvent
-    public void commonSetup(final FMLCommonSetupEvent event) {
+    public static void commonSetup(final FMLCommonSetupEvent event) {
         // リンク可能なアイテムの登録
         LOGGER.info("Registering Applied Ammo Box grid linkables...");
         event.enqueueWork(AppliedAmmoBoxGridLinkables::register);
