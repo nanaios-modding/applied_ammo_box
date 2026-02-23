@@ -5,6 +5,7 @@ import appeng.api.config.Actionable;
 import appeng.core.localization.GuiText;
 import appeng.core.localization.Tooltips;
 import com.nanaios.applied_ammo_box.AppliedAmmoBoxLang;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -35,7 +36,7 @@ public class CreativeWirelessAmmoBoxItem extends WirelessAmmoBoxItem {
 
     @Override
     public @NotNull Component getName(ItemStack stack) {
-        return AppliedAmmoBoxLang.CREATIVE_WIRELESS_AMMO_BOX_NAME.get();
+        return AppliedAmmoBoxLang.CREATIVE_WIRELESS_AMMO_BOX_NAME.get().withStyle(ChatFormatting.DARK_PURPLE);
     }
 
     @Override
