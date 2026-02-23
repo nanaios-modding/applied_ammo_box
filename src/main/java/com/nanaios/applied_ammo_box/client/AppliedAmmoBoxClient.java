@@ -19,7 +19,7 @@ import net.minecraftforge.registries.RegistryObject;
 public class AppliedAmmoBoxClient {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        for(RegistryObject<Item> registry : AppliedAmmoBoxItems.WIRELESS_ITEMS.getEntries()) {
+        for (RegistryObject<Item> registry : AppliedAmmoBoxItems.WIRELESS_ITEMS.getEntries()) {
             ItemProperties.register(
                     registry.get(),
                     ResourceLocation.fromNamespaceAndPath(AppliedAmmoBox.MODID, "linked"),
@@ -28,7 +28,7 @@ public class AppliedAmmoBoxClient {
         }
     }
 
-    public static float isLighting(ItemStack stack, ClientLevel level, LivingEntity entity,int seed) {
+    public static float isLighting(ItemStack stack, ClientLevel level, LivingEntity entity, int seed) {
         if (stack.getItem() instanceof WirelessAmmoBoxItem wirelessItem) {
             if (wirelessItem.isLinked(stack) && wirelessItem.getAECurrentPower(stack) > 0) {
                 return 1.0f;

@@ -104,7 +104,7 @@ public class AE2LinkHelper {
     ///
     /// @param grid チェック対象のAE2グリッド
     /// @param pos  チェック対象の座標
-    public static @Nullable IWirelessAccessPoint getBestWap(IGrid grid,Level level, BlockPos pos) {
+    public static @Nullable IWirelessAccessPoint getBestWap(IGrid grid, Level level, BlockPos pos) {
         IWirelessAccessPoint bestWap = null;
         double bestSqDistance = Double.MAX_VALUE;
 

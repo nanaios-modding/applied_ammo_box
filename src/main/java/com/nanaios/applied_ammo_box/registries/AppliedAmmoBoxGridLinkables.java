@@ -9,7 +9,7 @@ import net.minecraftforge.registries.RegistryObject;
 public class AppliedAmmoBoxGridLinkables {
     public static void register() {
         for (RegistryObject<Item> registry : AppliedAmmoBoxItems.WIRELESS_ITEMS.getEntries()) {
-            AppliedAmmoBox.LOGGER.info("Register {} with GridLinkables",registry.get());
+            AppliedAmmoBox.LOGGER.info("Register {} with GridLinkables", registry.get());
             GridLinkables.register(registry.get(), new LinkableHandler());
         }
     }

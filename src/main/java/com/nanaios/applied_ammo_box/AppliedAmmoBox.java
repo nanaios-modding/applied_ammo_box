@@ -26,7 +26,7 @@ public class AppliedAmmoBox {
     public AppliedAmmoBox(FMLJavaModLoadingContext context) {
         // コンフィグの登録
         LOGGER.info("Registering Applied Ammo Box config...");
-        context.registerConfig(ModConfig.Type.COMMON,AppliedAmmoBoxConfig.init());
+        context.registerConfig(ModConfig.Type.COMMON, AppliedAmmoBoxConfig.init());
 
         // アイテムの登録
         LOGGER.info("Registering Applied Ammo Box items...");
@@ -48,8 +48,8 @@ public class AppliedAmmoBox {
 
     @SubscribeEvent
     public static void buildContents(BuildCreativeModeTabContentsEvent event) {
-        ResourceLocation targetTabLocation = ResourceLocation.fromNamespaceAndPath(GunMod.MOD_ID,"other");
-        if(!event.getTabKey().location().equals(targetTabLocation)) return;
+        ResourceLocation targetTabLocation = ResourceLocation.fromNamespaceAndPath(GunMod.MOD_ID, "other");
+        if (!event.getTabKey().location().equals(targetTabLocation)) return;
 
         LOGGER.info("Registering Applied Ammo Box items to other creative tab...");
         AppliedAmmoBoxItems.registerCreativeTab(event);

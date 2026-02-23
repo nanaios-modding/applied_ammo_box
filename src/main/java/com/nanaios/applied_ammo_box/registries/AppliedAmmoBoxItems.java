@@ -38,7 +38,7 @@ public class AppliedAmmoBoxItems {
             // 満充電のアイテムも追加する
             if (item instanceof IAEItemPowerStorage powered) {
                 ItemStack poweredStack = new ItemStack(item, 1);
-                if(powered.getPowerFlow(poweredStack) == AccessRestriction.NO_ACCESS) continue;
+                if (powered.getPowerFlow(poweredStack) == AccessRestriction.NO_ACCESS) continue;
                 powered.injectAEPower(poweredStack, powered.getAEMaxPower(poweredStack), Actionable.MODULATE);
                 output.accept(poweredStack);
             }
