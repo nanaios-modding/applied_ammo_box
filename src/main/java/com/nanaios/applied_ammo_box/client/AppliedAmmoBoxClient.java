@@ -9,17 +9,20 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT, modid = AppliedAmmoBox.MODID)
+@Mod(value = AppliedAmmoBox.MODID, dist = Dist.CLIENT)
+@EventBusSubscriber(modid = AppliedAmmoBox.MODID, value = Dist.CLIENT)
 public class AppliedAmmoBoxClient {
+
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        for (RegistryObject<Item> registry : AppliedAmmoBoxItems.WIRELESS_ITEMS.getEntries()) {
+        for (DeferredHolder<Item, ? extends Item> registry : AppliedAmmoBoxItems.WIRELESS_ITEMS.getEntries()) {
             ItemProperties.register(
                     registry.get(),
                     ResourceLocation.fromNamespaceAndPath(AppliedAmmoBox.MODID, "linked"),
@@ -38,4 +41,5 @@ public class AppliedAmmoBoxClient {
         }
         return 1.0f;
     }
+
 }

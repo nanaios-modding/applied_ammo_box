@@ -1,21 +1,51 @@
-package com.nanaios.applied_ammo_box.capabilitys;
+package com.nanaios.applied_ammo_box.capabilities;
 
 import appeng.api.config.Actionable;
-import appeng.api.config.PowerUnits;
 import appeng.api.implementations.items.IAEItemPowerStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.capabilities.ICapabilityProvider;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public record WirelessAmmoBoxCapabilityProvider(ItemStack stack,
                                                 IAEItemPowerStorage item) implements ICapabilityProvider, IEnergyStorage {
     @Override
+    public @Nullable Object getCapability(Object object, Object context) {
+        return null;
+    }
+
+    @Override
+    public int receiveEnergy(int toReceive, boolean simulate) {
+        return 0;
+    }
+
+    @Override
+    public int extractEnergy(int toExtract, boolean simulate) {
+        return 0;
+    }
+
+    @Override
+    public int getEnergyStored() {
+        return 0;
+    }
+
+    @Override
+    public int getMaxEnergyStored() {
+        return 0;
+    }
+
+    @Override
+    public boolean canExtract() {
+        return false;
+    }
+
+    @Override
+    public boolean canReceive() {
+        return false;
+    }
+    /*@Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ENERGY) {
             return LazyOptional.of(() -> this).cast();
@@ -55,5 +85,5 @@ public record WirelessAmmoBoxCapabilityProvider(ItemStack stack,
     @Override
     public boolean canReceive() {
         return true;
-    }
+    }*/
 }

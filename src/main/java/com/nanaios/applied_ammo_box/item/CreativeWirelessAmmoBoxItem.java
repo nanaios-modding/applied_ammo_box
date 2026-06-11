@@ -5,27 +5,23 @@ import appeng.api.config.Actionable;
 import appeng.core.localization.GuiText;
 import appeng.core.localization.Tooltips;
 import com.nanaios.applied_ammo_box.AppliedAmmoBoxLang;
+import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class CreativeWirelessAmmoBoxItem extends WirelessAmmoBoxItem {
 
-    public CreativeWirelessAmmoBoxItem() {
-        super();
-    }
-
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> lines, TooltipFlag advancedTooltips) {
-        if (isLinked(stack)) {
-            lines.add(Tooltips.of(GuiText.Linked, Tooltips.GREEN));
+    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        if (AE2LinkHelper.getLinkedPosition(stack) != null) {
+            tooltipComponents.add(Tooltips.of(GuiText.Linked, Tooltips.GREEN));
         } else {
-            lines.add(Tooltips.of(GuiText.Unlinked, Tooltips.RED));
+            tooltipComponents.add(Tooltips.of(GuiText.Unlinked, Tooltips.RED));
         }
     }
 

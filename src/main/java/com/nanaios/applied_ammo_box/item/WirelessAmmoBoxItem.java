@@ -4,9 +4,10 @@ import appeng.api.config.Actionable;
 import appeng.core.localization.GuiText;
 import appeng.core.localization.PlayerMessages;
 import appeng.core.localization.Tooltips;
+import com.nanaios.applied_ammo_box.AppliedAmmoBox;
 import com.nanaios.applied_ammo_box.AppliedAmmoBoxLang;
-import com.nanaios.applied_ammo_box.capabilitys.WirelessAmmoBoxCapabilityProvider;
 import com.nanaios.applied_ammo_box.config.AppliedAmmoBoxConfig;
+import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxDataComponents;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper;
 import com.nanaios.applied_ammo_box.util.AE2LinkHelper.ActionResult;
 import com.tacz.guns.api.DefaultAssets;
@@ -15,8 +16,8 @@ import com.tacz.guns.api.item.IGun;
 import com.tacz.guns.api.item.builder.AmmoItemBuilder;
 import com.tacz.guns.item.AmmoBoxItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -31,31 +32,28 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPowerStorage, ITimeStamp, ILinkableItem {
-    public static String NBT_LEVEL_KEY = "ammoBoxExistLevel";
-    public static String NBT_BLOCK_POS_KEY = "ammoBoxExistBlockPos";
+
+    protected static final int DEFAULT_GREEN = Mth.hsvToRgb(1 / 3.0F, 1.0F, 1.0F);
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
-        // 手に持っているアイテムを取得
+        //Get the item stack
         ItemStack stack = player.getItemInHand(hand);
-
-        // スニーク状態で使用した時に弾薬のデータをリセットする
+        //Reset ammo data if the player is crouching
         if (player.isCrouching()) {
             if (!level.isClientSide) {
                 clearAmmoData(stack);
                 player.displayClientMessage(AppliedAmmoBoxLang.CLEAR_AMMO_MESSAGE.get(), true);
             }
-
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
         }
 
@@ -66,26 +64,26 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
 
-        // サーバーサイドでのみ動作させる
+        //Return if not on the server
         if (level.isClientSide()) return;
 
-        // プレイヤーでなければ処理を中断
+        //Return if not in a player inventory
         if (!(entity instanceof Player player)) return;
 
-        // 弾薬のIDを取得
+        //Get the ammo id of the gun the player is holding
         ItemStack iGunStack = player.getItemInHand(InteractionHand.MAIN_HAND);
         boolean isUpdate = updateAmmoId(stack, iGunStack);
 
-        // 負荷軽減のため1秒に1回更新する
+        //Only update once a second
         if (isWantUpdate(stack) || isUpdate) {
-            // 弾薬箱の座標を取得
+            //Get ammo box coordinates
             setPos(stack, player.blockPosition());
             setLevel(stack, level);
 
-            // タイムスタンプを更新
+            //Update time stamp
             setTimeStamp(stack, System.currentTimeMillis());
 
-            // 弾薬数を更新
+            //Update ammo count
             ActionResult result = updateAmmoCount(stack);
 
             switch (result.status()) {
@@ -97,110 +95,72 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     }
 
     public void clearAmmoData(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-
-        if (tag == null) return;
-
-        // 弾薬IDを削除
-        if (tag.contains("AmmoId")) {
-            tag.remove("AmmoId");
-        }
-
-        // 弾薬数を削除
-        if (tag.contains("AmmoCount")) {
-            tag.remove("AmmoCount");
-        }
+        stack.remove(DataComponents.CUSTOM_DATA);
     }
 
-    /// 弾薬箱が存在するレベルを設定する
-    ///
-    /// @param stack 弾薬箱のItemStack
-    /// @param level レベル
+    /// Set the ammo box's level
     public void setLevel(ItemStack stack, Level level) {
-        stack.getOrCreateTag().putString(NBT_LEVEL_KEY, level.dimension().location().toString());
+        stack.set(AppliedAmmoBoxDataComponents.AMMO_BOX_LEVEL, level.dimension().location().toString());
     }
 
-    /// 弾薬箱が存在するレベルを取得する
-    ///
-    /// @param stack 弾薬箱のItemStack
+    /// Get the current level
     @Nullable
     public Level getLevel(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag != null && tag.contains(NBT_LEVEL_KEY)) {
-            return ServerLifecycleHooks.getCurrentServer().getLevel(
-                    ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(tag.getString(NBT_LEVEL_KEY)))
-            );
-        }
-        return null;
+        return ServerLifecycleHooks.getCurrentServer().getLevel(
+                ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(stack.getOrDefault(AppliedAmmoBoxDataComponents.AMMO_BOX_LEVEL, "minecraft:overworld")))
+        );
     }
 
-    /// 弾薬箱が存在する座標を設定する
-    ///
-    /// @param stack 弾薬箱のItemStack
-    /// @param pos   座標
+    /// Set the current coordinates
     public void setPos(ItemStack stack, BlockPos pos) {
-        stack.getOrCreateTag().putLong(NBT_BLOCK_POS_KEY, pos.asLong());
+        stack.set(AppliedAmmoBoxDataComponents.AMMO_BOX_BLOCK_POS, pos.asLong());
     }
 
-    /// 弾薬箱が存在する座標を取得する
-    ///
-    /// @param stack 弾薬箱のItemStack
+    /// Get the current coordinates
     @Nullable
     public BlockPos getPos(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag != null && tag.contains(NBT_BLOCK_POS_KEY)) {
-            return BlockPos.of(tag.getLong(NBT_BLOCK_POS_KEY));
-        }
-        return null;
+        return BlockPos.of(stack.getOrDefault(AppliedAmmoBoxDataComponents.AMMO_BOX_BLOCK_POS, 0L));
     }
 
-    /// 弾薬箱の情報を更新する必要があるかどうかを返す
-    ///
-    /// @param stack 弾薬箱のItemStack
+    /// Checks if it's been at least a second since the last update
     public boolean isWantUpdate(ItemStack stack) {
         return (System.currentTimeMillis() - getTimeStamp(stack)) > 1000;
     }
 
-    /// 弾薬IDを銃から取得し更新する
-    /// 更新が発生した場合はtrueを返す
-    ///
-    /// @param ammoBox  弾薬箱のItemStack
-    /// @param gunStack 銃のItemStack
+    /// Checks and updates the current ammo ID, returns true if update
     public boolean updateAmmoId(ItemStack ammoBox, ItemStack gunStack) {
-        // 銃でなければ処理を中断
+        // Return false if the player isn't holding a gun
         if (!(gunStack.getItem() instanceof IGun gun)) return false;
 
-        // 弾薬のIDを取得
+        // Get the ammo ID
         ResourceLocation ammoId = TimelessAPI.getCommonGunIndex(gun.getGunId(gunStack))
                 .map(commonGunIndex -> commonGunIndex.getGunData().getAmmoId())
                 .orElse(DefaultAssets.EMPTY_AMMO_ID);
 
-        // 弾薬IDが同じなら処理を中断
+        // Cancel if the ID is the same
         if (ammoId.equals(getAmmoId(ammoBox))) return false;
 
-        // 弾薬IDを更新
+        // Update the ID
         setAmmoId(ammoBox, ammoId);
         return true;
     }
 
-    /// 弾薬数をAE2ネットワークから取得し更新する
-    ///
-    /// @param stack 弾薬箱のItemStack
+    /// Get how many bullets of a given ID are in the network
     public ActionResult updateAmmoCount(ItemStack stack) {
-        // 弾薬の情報を取得
+        // Get the ammo info
         ItemStack ammo = AmmoItemBuilder.create().setId(getAmmoId(stack)).setCount(1).build();
 
-        // 弾薬箱が存在するレベルと座標を取得
+        // Makes sure the box is connected to a network
         BlockPos pos = getPos(stack);
         Level level = getLevel(stack);
         if (level == null || pos == null) return new ActionResult(ActionResult.Status.LINKED_NETWORK_NOT_FOUND, 0);
 
-        // 弾薬数を更新
+        // Update the ammo count
         ActionResult result = AE2LinkHelper.extractionAmmo(level, pos, stack, ammo, Integer.MAX_VALUE, Actionable.SIMULATE);
-        // 弾薬箱の弾薬数を直接更新
+        // Update the ammo count in the box itself
         super.setAmmoCount(stack, result.count());
-        // リンク状態を更新
-        this.setLinked(stack, result.status() == ActionResult.Status.SUCCESS);
+        // Update the connection status
+        stack.set(AppliedAmmoBoxDataComponents.AMMO_BOX_LINKED, result.status() == ActionResult.Status.SUCCESS);
 
         return result;
     }
@@ -213,44 +173,36 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
 
     @Override
     public void setAmmoCount(ItemStack ammoBox, int count) {
-        //弾薬が減少している個数を計算
+        //Calculate how many bullets to subtract
         int oldCount = this.getAmmoCount(ammoBox);
         int diff = oldCount - count;
         if (diff <= 0) return;
 
-        // 弾薬箱が存在するレベルと座標を取得
+        // Makes sure the box is connected to a network
         BlockPos pos = getPos(ammoBox);
         Level level = getLevel(ammoBox);
         if (level == null || pos == null) return;
 
-        // 弾薬をAE2ネットワークから取り出す
+        // Remove ammo from the connected network
         ItemStack ammo = AmmoItemBuilder.create().setId(getAmmoId(ammoBox)).setCount(1).build();
         AE2LinkHelper.extractionAmmo(level, pos, ammoBox, ammo, diff, Actionable.MODULATE);
 
-        // エネルギーを消費
-        extractAEPower(ammoBox, AppliedAmmoBoxConfig.AMMO_BOX_USE_POWER_PER_AMMO.get() * diff, Actionable.MODULATE);
+        // Consume stored power
+        extractAEPower(ammoBox, AppliedAmmoBoxConfig.AMMO_BOX_PER_ROUND_POWER_USAGE.get() * diff, Actionable.MODULATE);
 
-        // 弾薬数を再取得して設定
+        // Get and sets the ammo count in the box
         updateAmmoCount(ammoBox);
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> lines, TooltipFlag advancedTooltips) {
-        final CompoundTag tag = stack.getTag();
-        double internalCurrentPower = 0;
-        final double internalMaxPower = this.getAEMaxPower(stack);
+    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        tooltipComponents.add(Tooltips.energyStorageComponent(getAECurrentPower(stack), getAEMaxPower(stack)));
 
-        if (tag != null) {
-            internalCurrentPower = tag.getDouble(CURRENT_POWER_NBT_KEY);
-        }
-
-        lines.add(Tooltips.energyStorageComponent(internalCurrentPower, internalMaxPower));
-
-        if (isLinked(stack)) {
-            lines.add(Tooltips.of(GuiText.Linked, Tooltips.GREEN));
+        if (AE2LinkHelper.getLinkedPosition(stack) != null) {
+            tooltipComponents.add(Tooltips.of(GuiText.Linked, Tooltips.GREEN));
         } else {
-            lines.add(Tooltips.of(GuiText.Unlinked, Tooltips.RED));
+            tooltipComponents.add(Tooltips.of(GuiText.Unlinked, Tooltips.RED));
         }
     }
 
@@ -283,16 +235,12 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     @Override
     public int getBarColor(ItemStack stack) {
         // This is the standard green color of full durability bars
-        return Mth.hsvToRgb(1 / 3.0F, 1.0F, 1.0F);
+        return DEFAULT_GREEN;
     }
 
     @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+    public boolean shouldCauseReequipAnimation(@NotNull ItemStack oldStack, @NotNull ItemStack newStack, boolean slotChanged) {
         return slotChanged || !ItemStack.isSameItem(oldStack, newStack);
     }
 
-    @Override
-    public @Nullable ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-        return new WirelessAmmoBoxCapabilityProvider(stack, this);
-    }
 }

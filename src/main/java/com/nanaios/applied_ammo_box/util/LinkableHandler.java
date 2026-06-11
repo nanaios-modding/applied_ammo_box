@@ -1,12 +1,12 @@
 package com.nanaios.applied_ammo_box.util;
 
 import appeng.api.features.IGridLinkableHandler;
+import appeng.api.ids.AEComponents;
+import com.nanaios.applied_ammo_box.AppliedAmmoBox;
 import com.nanaios.applied_ammo_box.item.ILinkableItem;
+import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxDataComponents;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.item.ItemStack;
-
-import static com.nanaios.applied_ammo_box.util.AE2LinkHelper.TAG_ACCESS_POINT_POS;
 
 public class LinkableHandler implements IGridLinkableHandler {
     @Override
@@ -16,16 +16,15 @@ public class LinkableHandler implements IGridLinkableHandler {
 
     @Override
     public void link(ItemStack itemStack, GlobalPos pos) {
-        GlobalPos.CODEC.encodeStart(NbtOps.INSTANCE, pos)
-                .result()
-                .ifPresent(tag -> itemStack.getOrCreateTag().put(TAG_ACCESS_POINT_POS, tag));
-        if (itemStack.getItem() instanceof ILinkableItem linkableItem) {
-            linkableItem.setLinked(itemStack, true);
+        itemStack.set(AEComponents.WIRELESS_LINK_TARGET, pos);
+        if (itemStack.getItem() instanceof ILinkableItem) {
+            itemStack.set(AppliedAmmoBoxDataComponents.AMMO_BOX_LINKED, true);
         }
     }
 
     @Override
     public void unlink(ItemStack itemStack) {
-        itemStack.removeTagKey(TAG_ACCESS_POINT_POS);
+        itemStack.remove(AEComponents.WIRELESS_LINK_TARGET);
+        itemStack.remove(AppliedAmmoBoxDataComponents.AMMO_BOX_LINKED);
     }
 }
