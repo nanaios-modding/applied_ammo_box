@@ -15,11 +15,10 @@ public interface IDefaultAEItemPowerStorage extends IAEItemPowerStorage {
         final double maxStorage = this.getAEMaxPower(stack);
         final double currentStorage = this.getAECurrentPower(stack);
         final double required = maxStorage - currentStorage;
-        //TODO this
-        final double overflow = Math.max(0, Math.min(amount - required, amount));
+        final double overflow = Math.clamp(amount - required, 0, amount);
 
         if (mode == Actionable.MODULATE) {
-            var toAdd = Math.min(amount, required);
+            double toAdd = Math.min(amount, required);
             setAECurrentPower(stack, currentStorage + toAdd);
         }
 

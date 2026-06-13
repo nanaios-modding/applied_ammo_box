@@ -4,7 +4,6 @@ import appeng.api.config.Actionable;
 import appeng.core.localization.GuiText;
 import appeng.core.localization.PlayerMessages;
 import appeng.core.localization.Tooltips;
-import com.nanaios.applied_ammo_box.AppliedAmmoBox;
 import com.nanaios.applied_ammo_box.AppliedAmmoBoxLang;
 import com.nanaios.applied_ammo_box.config.AppliedAmmoBoxConfig;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxDataComponents;

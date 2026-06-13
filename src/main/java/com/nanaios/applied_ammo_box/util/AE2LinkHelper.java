@@ -11,7 +11,6 @@ import appeng.api.stacks.AEKey;
 import appeng.api.storage.StorageHelper;
 import appeng.api.util.DimensionalBlockPos;
 import appeng.blockentity.networking.WirelessAccessPointBlockEntity;
-import appeng.me.helpers.ActionHostEnergySource;
 import appeng.me.helpers.BaseActionSource;
 import appeng.util.Platform;
 import net.minecraft.core.BlockPos;

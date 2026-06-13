@@ -22,24 +22,23 @@ public class AppliedAmmoBoxClient {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        for (DeferredHolder<Item, ? extends Item> registry : AppliedAmmoBoxItems.WIRELESS_ITEMS.getEntries()) {
+        for (DeferredHolder<Item, ? extends Item> item : AppliedAmmoBoxItems.WIRELESS_ITEMS.getEntries()) {
             ItemProperties.register(
-                    registry.get(),
+                    item.get(),
                     ResourceLocation.fromNamespaceAndPath(AppliedAmmoBox.MODID, "linked"),
-                    AppliedAmmoBoxClient::isLighting
+                    AppliedAmmoBoxClient::hasLight
             );
         }
     }
 
-    public static float isLighting(ItemStack stack, ClientLevel level, LivingEntity entity, int seed) {
-        if (stack.getItem() instanceof WirelessAmmoBoxItem wirelessItem) {
-            if (wirelessItem.isLinked(stack) && wirelessItem.getAECurrentPower(stack) > 0) {
-                return 1.0f;
-            } else {
-                return 0.0f;
-            }
+    public static float hasLight(ItemStack stack, ClientLevel level, LivingEntity entity, int seed) {
+        if (stack.getItem() instanceof WirelessAmmoBoxItem wirelessItem
+                && wirelessItem.isLinked(stack)
+                && wirelessItem.getAECurrentPower(stack) > 0
+        ) {
+            return 1.0f;
         }
-        return 1.0f;
+        return 0.0f;
     }
 
 }

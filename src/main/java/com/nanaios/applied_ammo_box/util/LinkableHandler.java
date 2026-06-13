@@ -2,7 +2,6 @@ package com.nanaios.applied_ammo_box.util;
 
 import appeng.api.features.IGridLinkableHandler;
 import appeng.api.ids.AEComponents;
-import com.nanaios.applied_ammo_box.AppliedAmmoBox;
 import com.nanaios.applied_ammo_box.item.ILinkableItem;
 import com.nanaios.applied_ammo_box.registries.AppliedAmmoBoxDataComponents;
 import net.minecraft.core.GlobalPos;
