@@ -2,23 +2,23 @@ package com.nanaios.applied_ammo_box.item;
 
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
+import appeng.api.ids.AEComponents;
 import appeng.api.implementations.items.IAEItemPowerStorage;
 import appeng.core.AEConfig;
 import net.minecraft.world.item.ItemStack;
 
 public interface IDefaultAEItemPowerStorage extends IAEItemPowerStorage {
     double MIN_POWER = 0.0001;
-    String CURRENT_POWER_NBT_KEY = "internalCurrentPower";
 
     @Override
     default double injectAEPower(ItemStack stack, double amount, Actionable mode) {
         final double maxStorage = this.getAEMaxPower(stack);
         final double currentStorage = this.getAECurrentPower(stack);
         final double required = maxStorage - currentStorage;
-        final double overflow = Math.max(0, Math.min(amount - required, amount));
+        final double overflow = Math.clamp(amount - required, 0, amount);
 
         if (mode == Actionable.MODULATE) {
-            var toAdd = Math.min(amount, required);
+            double toAdd = Math.min(amount, required);
             setAECurrentPower(stack, currentStorage + toAdd);
         }
 
@@ -44,19 +44,14 @@ public interface IDefaultAEItemPowerStorage extends IAEItemPowerStorage {
 
     @Override
     default double getAECurrentPower(ItemStack stack) {
-        var tag = stack.getTag();
-        if (tag != null) {
-            return tag.getDouble(CURRENT_POWER_NBT_KEY);
-        } else {
-            return 0;
-        }
+        return stack.getOrDefault(AEComponents.STORED_ENERGY, 0.0);
     }
 
     default void setAECurrentPower(ItemStack stack, double power) {
         if (power < MIN_POWER) {
-            stack.removeTagKey(CURRENT_POWER_NBT_KEY);
+            stack.remove(AEComponents.STORED_ENERGY);
         } else {
-            stack.getOrCreateTag().putDouble(CURRENT_POWER_NBT_KEY, power);
+            stack.set(AEComponents.STORED_ENERGY, power);
         }
     }
 

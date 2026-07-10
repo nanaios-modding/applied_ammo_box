@@ -1,0 +1,42 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
+issueTrackerURL="https://github.com/nanaios-modding/applied_ammo_box/issues"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+displayURL="https://github.com/nanaios-modding/applied_ammo_box"
+#logoFile="appliedtacz.png"
+authors = "${mod_authors}"
+credits= "${mod_credits}"
+description = '''${mod_description}'''
+
+[[mixins]]
+config="${mod_id}.aeinfinitybooster.mixins.json"
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type="required"
+versionRange = "[${neo_version},)"
+ordering = "NONE"
+side = "BOTH"
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type="required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"
+[[dependencies.${mod_id}]]
+modId="ae2"
+type="required"
+versionRange="[19.2.17,)"
+ordering="AFTER"
+side="BOTH"
+[[dependencies.${mod_id}]]
+modId="tacz"
+type="required"
+versionRange="[1.1.8,)"
+ordering="AFTER"
+side="BOTH"

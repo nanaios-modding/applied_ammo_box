@@ -9,33 +9,36 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT, modid = AppliedAmmoBox.MODID)
+@Mod(value = AppliedAmmoBox.MODID, dist = Dist.CLIENT)
+@EventBusSubscriber(modid = AppliedAmmoBox.MODID, value = Dist.CLIENT)
 public class AppliedAmmoBoxClient {
+
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        for (RegistryObject<Item> registry : AppliedAmmoBoxItems.WIRELESS_ITEMS.getEntries()) {
+        for (DeferredHolder<Item, ? extends Item> item : AppliedAmmoBoxItems.WIRELESS_ITEMS.getEntries()) {
             ItemProperties.register(
-                    registry.get(),
+                    item.get(),
                     ResourceLocation.fromNamespaceAndPath(AppliedAmmoBox.MODID, "linked"),
-                    AppliedAmmoBoxClient::isLighting
+                    AppliedAmmoBoxClient::hasLight
             );
         }
     }
 
-    public static float isLighting(ItemStack stack, ClientLevel level, LivingEntity entity, int seed) {
-        if (stack.getItem() instanceof WirelessAmmoBoxItem wirelessItem) {
-            if (wirelessItem.isLinked(stack) && wirelessItem.getAECurrentPower(stack) > 0) {
-                return 1.0f;
-            } else {
-                return 0.0f;
-            }
+    public static float hasLight(ItemStack stack, ClientLevel level, LivingEntity entity, int seed) {
+        if (stack.getItem() instanceof WirelessAmmoBoxItem wirelessItem
+                && wirelessItem.isLinked(stack)
+                && wirelessItem.getAECurrentPower(stack) > 0
+        ) {
+            return 1.0f;
         }
-        return 1.0f;
+        return 0.0f;
     }
+
 }
