@@ -66,6 +66,13 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
     public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
 
+        // エネルギーが無い場合は弾薬のデータをリセットする
+        if(this.getAECurrentPower(stack) <= 0) {
+            setAmmoCount(stack,0);
+            setAmmoId(stack, DefaultAssets.EMPTY_AMMO_ID);
+            return;
+        }
+
         // サーバーサイドでのみ動作させる
         if (level.isClientSide()) return;
 
