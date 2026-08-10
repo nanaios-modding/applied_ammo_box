@@ -16,52 +16,52 @@ import java.util.List;
 
 public class CreativeWirelessAmmoBoxItem extends WirelessAmmoBoxItem {
 
-    @Override
-    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
-        if (AE2LinkHelper.getLinkedPosition(stack) != null) {
-            tooltipComponents.add(Tooltips.of(GuiText.Linked, Tooltips.GREEN));
-        } else {
-            tooltipComponents.add(Tooltips.of(GuiText.Unlinked, Tooltips.RED));
-        }
-    }
+	@Override
+	public boolean isFoil(ItemStack stack) {
+		return true;
+	}
 
-    @Override
-    public boolean isFoil(ItemStack stack) {
-        return true;
-    }
+	@Override
+	public boolean isBarVisible(ItemStack stack) {
+		return false;
+	}
 
-    @Override
-    public @NotNull Component getName(ItemStack stack) {
-        return AppliedAmmoBoxLang.CREATIVE_WIRELESS_AMMO_BOX_NAME.get().withStyle(ChatFormatting.DARK_PURPLE);
-    }
+	@Override
+	public @NotNull Component getName(ItemStack stack) {
+		return AppliedAmmoBoxLang.CREATIVE_WIRELESS_AMMO_BOX_NAME.get().withStyle(ChatFormatting.DARK_PURPLE);
+	}
 
-    @Override
-    public boolean isBarVisible(ItemStack stack) {
-        return false;
-    }
+	@Override
+	public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+		if (AE2LinkHelper.getLinkedPosition(stack) != null) {
+			tooltipComponents.add(Tooltips.of(GuiText.Linked, Tooltips.GREEN));
+		} else {
+			tooltipComponents.add(Tooltips.of(GuiText.Unlinked, Tooltips.RED));
+		}
+	}
 
-    @Override
-    public double extractAEPower(ItemStack stack, double amount, Actionable mode) {
-        return amount;
-    }
+	@Override
+	public double injectAEPower(ItemStack stack, double amount, Actionable mode) {
+		return 0.0;
+	}
 
-    @Override
-    public double injectAEPower(ItemStack stack, double amount, Actionable mode) {
-        return 0.0;
-    }
+	@Override
+	public double extractAEPower(ItemStack stack, double amount, Actionable mode) {
+		return amount;
+	}
 
-    @Override
-    public double getAEMaxPower(ItemStack stack) {
-        return Double.MAX_VALUE;
-    }
+	@Override
+	public double getAEMaxPower(ItemStack stack) {
+		return Double.MAX_VALUE;
+	}
 
-    @Override
-    public double getAECurrentPower(ItemStack stack) {
-        return Double.MAX_VALUE;
-    }
+	@Override
+	public double getAECurrentPower(ItemStack stack) {
+		return Double.MAX_VALUE;
+	}
 
-    @Override
-    public AccessRestriction getPowerFlow(ItemStack itemStack) {
-        return AccessRestriction.NO_ACCESS;
-    }
+	@Override
+	public AccessRestriction getPowerFlow(ItemStack itemStack) {
+		return AccessRestriction.NO_ACCESS;
+	}
 }

@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -22,51 +23,53 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import org.slf4j.Logger;
 
 @Mod(AppliedAmmoBox.MODID)
+@EventBusSubscriber(modid = AppliedAmmoBox.MODID)
 public class AppliedAmmoBox {
 
-    public static final String MODID = "applied_ammo_box";
-    public static final Logger LOGGER = LogUtils.getLogger();
+	public static final String MODID = "applied_ammo_box";
+	public static final Logger LOGGER = LogUtils.getLogger();
 
-    public AppliedAmmoBox(IEventBus modEventBus, ModContainer modContainer) {
-        modEventBus.addListener(this::commonSetup);
-        //Register data components
-        LOGGER.debug("Registering Applied Ammo Box data components...");
-        AppliedAmmoBoxDataComponents.DATA_COMPONENTS.register(modEventBus);
-        // Register items
-        LOGGER.debug("Registering Applied Ammo Box items...");
-        AppliedAmmoBoxItems.WIRELESS_ITEMS.register(modEventBus);
-        AppliedAmmoBoxItems.FAKE_ITEMS.register(modEventBus);
-        // Register creative tab
-        LOGGER.debug("Registering Applied Ammo Box creative tab...");
-        AppliedAmmoBoxCreativeTabs.TABS.register(modEventBus);
+	public AppliedAmmoBox(IEventBus modEventBus, ModContainer modContainer) {
+		modEventBus.addListener(this::commonSetup);
+		//Register data components
+		LOGGER.debug("Registering Applied Ammo Box data components...");
+		AppliedAmmoBoxDataComponents.DATA_COMPONENTS.register(modEventBus);
+		// Register items
+		LOGGER.debug("Registering Applied Ammo Box items...");
+		AppliedAmmoBoxItems.WIRELESS_ITEMS.register(modEventBus);
+		AppliedAmmoBoxItems.FAKE_ITEMS.register(modEventBus);
+		// Register creative tab
+		LOGGER.debug("Registering Applied Ammo Box creative tab...");
+		AppliedAmmoBoxCreativeTabs.TABS.register(modEventBus);
 
-        // Register config
-        LOGGER.debug("Registering Applied Ammo Box config...");
-        modContainer.registerConfig(ModConfig.Type.COMMON, AppliedAmmoBoxConfig.SPEC);
-    }
+		// Register config
+		LOGGER.debug("Registering Applied Ammo Box config...");
+		modContainer.registerConfig(ModConfig.Type.COMMON, AppliedAmmoBoxConfig.SPEC);
+	}
 
-    @SubscribeEvent
-    public void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerItem(
-                Capabilities.EnergyStorage.ITEM,
-                (object, context) -> new PoweredItemCapabilities(object, (IAEItemPowerStorage) AppliedAmmoBoxItems.AMMO_BOX.get()));
-        event.registerItem(
-                Capabilities.EnergyStorage.ITEM,
-                (object, context) -> new PoweredItemCapabilities(object, (IAEItemPowerStorage) AppliedAmmoBoxItems.CREATIVE_AMMO_BOX.get()));
-    }
+	private void commonSetup(FMLCommonSetupEvent event) {
+		// Register linkables
+		LOGGER.info("Registering Applied Ammo Box grid linkables...");
+		event.enqueueWork(AppliedAmmoBoxGridLinkables::register);
+	}
 
-    private void commonSetup(FMLCommonSetupEvent event) {
-        // Register linkables
-        LOGGER.info("Registering Applied Ammo Box grid linkables...");
-        event.enqueueWork(AppliedAmmoBoxGridLinkables::register);
-    }
+	@SubscribeEvent
+	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+		LOGGER.debug("Registering Applied Ammo Box capabilities...");
+		event.registerItem(
+				Capabilities.EnergyStorage.ITEM,
+				(object, context) -> new PoweredItemCapabilities(object, (IAEItemPowerStorage) AppliedAmmoBoxItems.AMMO_BOX.get()), AppliedAmmoBoxItems.AMMO_BOX.get());
+		event.registerItem(
+				Capabilities.EnergyStorage.ITEM,
+				(object, context) -> new PoweredItemCapabilities(object, (IAEItemPowerStorage) AppliedAmmoBoxItems.CREATIVE_AMMO_BOX.get()), AppliedAmmoBoxItems.CREATIVE_AMMO_BOX.get());
+	}
 
-    @SubscribeEvent
-    public void buildContents(BuildCreativeModeTabContentsEvent event) {
-        ResourceLocation targetTabLocation = ResourceLocation.fromNamespaceAndPath(GunMod.MOD_ID, "other");
-        if (!event.getTabKey().location().equals(targetTabLocation)) return;
+	@SubscribeEvent
+	public static void buildContents(BuildCreativeModeTabContentsEvent event) {
+		ResourceLocation targetTabLocation = ResourceLocation.fromNamespaceAndPath(GunMod.MOD_ID, "other");
+		if (!event.getTabKey().location().equals(targetTabLocation)) return;
 
-        LOGGER.info("Registering Applied Ammo Box items to other creative tab...");
-        AppliedAmmoBoxItems.registerCreativeTab(event);
-    }
+		LOGGER.info("Registering Applied Ammo Box items to other creative tab...");
+		AppliedAmmoBoxItems.registerCreativeTab(event);
+	}
 }
