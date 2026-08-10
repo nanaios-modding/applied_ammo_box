@@ -9,15 +9,14 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class AppliedAmmoBoxCreativeTabs {
 
-    public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, AppliedAmmoBox.MODID);
+	public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, AppliedAmmoBox.MODID);
 
-    static {
-        TABS.register("applied_ammo_box_tab", () -> CreativeModeTab.builder()
-                .title(AppliedAmmoBoxLang.CREATIVE_TAB_NAME.get())
-                .icon(() -> new ItemStack(AppliedAmmoBoxItems.ICON.get()))
-                .displayItems((params, output) -> AppliedAmmoBoxItems.registerCreativeTab(output))
-                .build()
-        );
-    }
+	static {
+		TABS.register("applied_ammo_box_tab", () -> CreativeModeTab.builder()
+				.title(AppliedAmmoBoxLang.CREATIVE_TAB_NAME.get())
+				.icon(() -> new ItemStack(AppliedAmmoBoxItems.ICON.get()))
+				.displayItems((params, output) -> AppliedAmmoBoxItems.registerCreativeTab(output))
+				.build()
+		);
+	}
 }
-

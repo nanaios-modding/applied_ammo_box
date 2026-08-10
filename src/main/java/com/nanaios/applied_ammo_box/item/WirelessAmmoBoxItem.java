@@ -247,5 +247,4 @@ public class WirelessAmmoBoxItem extends AmmoBoxItem implements IDefaultAEItemPo
 	public boolean shouldCauseReequipAnimation(@NotNull ItemStack oldStack, @NotNull ItemStack newStack, boolean slotChanged) {
 		return slotChanged || !ItemStack.isSameItem(oldStack, newStack);
 	}
-
 }

@@ -10,38 +10,42 @@ import java.util.List;
 import java.util.Set;
 
 public class MixinAEInfinityBoosterPlugin implements IMixinConfigPlugin {
-    
-    @Override
-    public void onLoad(String s) {}
 
-    @Override
-    public String getRefMapperConfig() {
-        return "";
-    }
+	@Override
+	public void onLoad(String s) {
+	}
 
-    @Override
-    public boolean shouldApplyMixin(String s, String s1) {
-        boolean canApply = LoadingModList.get().getModFileById("aeinfinitybooster") != null;
-        if (canApply) {
-            AppliedAmmoBox.LOGGER.info("Applying Mixin to AE Infinity Booster");
-        } else {
-            AppliedAmmoBox.LOGGER.info("AE Infinity Booster is not loaded, skipping Mixin");
-        }
-        return canApply;
-    }
+	@Override
+	public String getRefMapperConfig() {
+		return "";
+	}
 
-    @Override
-    public void acceptTargets(Set<String> set, Set<String> set1) {}
+	@Override
+	public boolean shouldApplyMixin(String s, String s1) {
+		boolean canApply = LoadingModList.get().getModFileById("aeinfinitybooster") != null;
+		if (canApply) {
+			AppliedAmmoBox.LOGGER.info("Applying Mixin to AE Infinity Booster");
+		} else {
+			AppliedAmmoBox.LOGGER.info("AE Infinity Booster is not loaded, skipping Mixin");
+		}
+		return canApply;
+	}
 
-    @Override
-    public List<String> getMixins() {
-        return List.of();
-    }
+	@Override
+	public void acceptTargets(Set<String> set, Set<String> set1) {
+	}
 
-    @Override
-    public void preApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {}
+	@Override
+	public List<String> getMixins() {
+		return List.of();
+	}
 
-    @Override
-    public void postApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {}
+	@Override
+	public void preApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
+	}
+
+	@Override
+	public void postApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
+	}
 
 }

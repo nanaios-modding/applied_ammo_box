@@ -8,60 +8,60 @@ import appeng.core.AEConfig;
 import net.minecraft.world.item.ItemStack;
 
 public interface IDefaultAEItemPowerStorage extends IAEItemPowerStorage {
-    double MIN_POWER = 0.0001;
+	double MIN_POWER = 0.0001;
 
-    @Override
-    default double injectAEPower(ItemStack stack, double amount, Actionable mode) {
-        final double maxStorage = this.getAEMaxPower(stack);
-        final double currentStorage = this.getAECurrentPower(stack);
-        final double required = maxStorage - currentStorage;
-        final double overflow = Math.clamp(amount - required, 0, amount);
+	@Override
+	default double injectAEPower(ItemStack stack, double amount, Actionable mode) {
+		final double maxStorage = this.getAEMaxPower(stack);
+		final double currentStorage = this.getAECurrentPower(stack);
+		final double required = maxStorage - currentStorage;
+		final double overflow = Math.clamp(amount - required, 0, amount);
 
-        if (mode == Actionable.MODULATE) {
-            double toAdd = Math.min(amount, required);
-            setAECurrentPower(stack, currentStorage + toAdd);
-        }
+		if (mode == Actionable.MODULATE) {
+			double toAdd = Math.min(amount, required);
+			setAECurrentPower(stack, currentStorage + toAdd);
+		}
 
-        return overflow;
-    }
+		return overflow;
+	}
 
-    @Override
-    default double extractAEPower(ItemStack stack, double amount, Actionable mode) {
-        final double currentStorage = this.getAECurrentPower(stack);
-        final double fulfillable = Math.min(amount, currentStorage);
+	@Override
+	default double extractAEPower(ItemStack stack, double amount, Actionable mode) {
+		final double currentStorage = this.getAECurrentPower(stack);
+		final double fulfillable = Math.min(amount, currentStorage);
 
-        if (mode == Actionable.MODULATE) {
-            setAECurrentPower(stack, currentStorage - fulfillable);
-        }
+		if (mode == Actionable.MODULATE) {
+			setAECurrentPower(stack, currentStorage - fulfillable);
+		}
 
-        return fulfillable;
-    }
+		return fulfillable;
+	}
 
-    @Override
-    default double getAEMaxPower(ItemStack stack) {
-        return AEConfig.instance().getWirelessTerminalBattery().getAsDouble();
-    }
+	@Override
+	default double getAEMaxPower(ItemStack stack) {
+		return AEConfig.instance().getWirelessTerminalBattery().getAsDouble();
+	}
 
-    @Override
-    default double getAECurrentPower(ItemStack stack) {
-        return stack.getOrDefault(AEComponents.STORED_ENERGY, 0.0);
-    }
+	@Override
+	default double getAECurrentPower(ItemStack stack) {
+		return stack.getOrDefault(AEComponents.STORED_ENERGY, 0.0);
+	}
 
-    default void setAECurrentPower(ItemStack stack, double power) {
-        if (power < MIN_POWER) {
-            stack.remove(AEComponents.STORED_ENERGY);
-        } else {
-            stack.set(AEComponents.STORED_ENERGY, power);
-        }
-    }
+	@Override
+	default AccessRestriction getPowerFlow(ItemStack stack) {
+		return AccessRestriction.WRITE;
+	}
 
-    @Override
-    default AccessRestriction getPowerFlow(ItemStack stack) {
-        return AccessRestriction.WRITE;
-    }
+	@Override
+	default double getChargeRate(ItemStack stack) {
+		return 800d;
+	}
 
-    @Override
-    default double getChargeRate(ItemStack stack) {
-        return 800d;
-    }
+	default void setAECurrentPower(ItemStack stack, double power) {
+		if (power < MIN_POWER) {
+			stack.remove(AEComponents.STORED_ENERGY);
+		} else {
+			stack.set(AEComponents.STORED_ENERGY, power);
+		}
+	}
 }

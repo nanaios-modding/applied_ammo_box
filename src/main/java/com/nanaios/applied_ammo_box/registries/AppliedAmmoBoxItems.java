@@ -25,7 +25,7 @@ public class AppliedAmmoBoxItems {
 	/// Register Items
 	public static final DeferredItem<Item> AMMO_BOX = WIRELESS_ITEMS.register("ammo_box", WirelessAmmoBoxItem::new);
 	public static final DeferredItem<Item> CREATIVE_AMMO_BOX = WIRELESS_ITEMS.register("creative_ammo_box", CreativeWirelessAmmoBoxItem::new);
-
+	
 	/// Add items to a creative tab
 	public static void registerCreativeTab(CreativeModeTab.Output output) {
 		for (DeferredHolder<Item, ? extends Item> registry : WIRELESS_ITEMS.getEntries()) {
